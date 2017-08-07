@@ -1,0 +1,14 @@
+{
+  "name": "cybot",
+  "version": "0.0.1",
+  "dependencies": {
+    "autobahn": "^17.5.2",
+    "lodash": "^4.17.4",
+    "moment": "^2.18.1",
+    "poloniex-orderbook": "^3.0.0",
+    "poloniex.js": "0.0.7",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.1",
+    "yargs": "^8.0.2"
+  }
+}
