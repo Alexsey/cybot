@@ -45,49 +45,43 @@ const privateMethods = _({
     currencyPair: _.lowerCase(curA) == 'all' ? 'all' :`${curA}_${curB}`
   }),
   returnOrderTrades: orderNumber => ({orderNumber}),
-  buy: (curA, curB, amount, rate, {fillOrKill, immediateOrCancel, postOnly}) => {
-    const params = {currencyPair: `${curA}_${curB}`, amount, rate}
-    if (fillOrKill) params.fillOrKill = 1
-    if (immediateOrCancel) params.immediateOrCancel = 1
-    if (postOnly) params.postOnly = 1
-    return params
-  },
-  sell: (curA, curB, amount, rate, {fillOrKill, immediateOrCancel, postOnly} = {}) => {
-    const params = {currencyPair: `${curA}_${curB}`, amount, rate}
-    if (fillOrKill) params.fillOrKill = 1
-    if (immediateOrCancel) params.immediateOrCancel = 1
-    if (postOnly) params.postOnly = 1
-    return params
-  },
+  buy: (curA, curB, amount, rate, {fillOrKill, immediateOrCancel, postOnly} = {}) => ({
+    currencyPair: `${curA}_${curB}`, amount, rate,
+    ...fillOrKill && {fillOrKill: 1},
+    ...immediateOrCancel && {immediateOrCancel: 1},
+    ...postOnly && {postOnly: 1},
+  }),
+  sell: (curA, curB, amount, rate, {fillOrKill, immediateOrCancel, postOnly} = {}) => ({
+    currencyPair: `${curA}_${curB}`, amount, rate,
+    ...fillOrKill && {fillOrKill: 1},
+    ...immediateOrCancel && {immediateOrCancel: 1},
+    ...postOnly && {postOnly: 1},
+  }),
   cancelOrder: orderNumber => ({orderNumber}),
-  moveOrder: (orderNumber, rate, {amount, postOnly, immediateOrCancel} = {}) => {
-    const params = {orderNumber, rate}
-    if (amount != null) params.amount = +amount
-    if (postOnly) params.postOnly = 1
-    if (immediateOrCancel) params.immediateOrCancel = 1
-    return params
-  },
-  withdraw: (currency, amount, address, {paymentId} = {}) => {
-    const params = {currency, amount, address}
-    if (paymentId) params.paymentId = paymentId
-    return params
-  },
+  moveOrder: (orderNumber, rate, {amount, postOnly, immediateOrCancel} = {}) => ({
+    orderNumber, rate,
+    ...amount != null && {amount: +amount},
+    ...postOnly && {postOnly: 1},
+    ...immediateOrCancel && {immediateOrCancel: 1}
+  }),
+  withdraw: (currency, amount, address, {paymentId} = {}) => ({
+    currency, amount, address,
+    ...paymentId && {paymentId: paymentId}
+  }),
   returnFeeInfo: () => ({}),
   returnAvailableAccountBalances: ({account} = {}) => account ? {account} : {},
   returnTradableBalances: () => ({}),
   transferBalance: (currency, amount, fromAccount, toAccount) =>
     ({currency, amount, fromAccount, toAccount}),
   returnMarginAccountSummary: () => ({}),
-  marginBuy: (curA, curB, rate, amount, {leadingRate} = {}) => {
-    const params = {currencyPair: `${curA}_${curB}`, rate, amount}
-    if (leadingRate) params.leadingRate = leadingRate
-    return params
-  },
-  marginSell: (curA, curB, rate, amount, {leadingRate} = {}) => {
-    const params = {currencyPair: `${curA}_${curB}`, rate, amount}
-    if (leadingRate) params.leadingRate = leadingRate
-    return params
-  },
+  marginBuy: (curA, curB, rate, amount, {leadingRate} = {}) => ({
+    currencyPair: `${curA}_${curB}`, rate, amount,
+    ...leadingRate && {leadingRate: leadingRate}
+  }),
+  marginSell: (curA, curB, rate, amount, {leadingRate} = {}) => ({
+    currencyPair: `${curA}_${curB}`, rate, amount,
+    ...leadingRate && {leadingRate: leadingRate}
+  }),
   getMarginPosition: (curA, curB) => ({
     currencyPair: _.lowerCase(curA) == 'all' ? 'all' :`${curA}_${curB}`
   }),
@@ -106,7 +100,7 @@ const privateMethods = _({
 })
   .transform((acc, argsToRequestParams, methodName) =>
     acc[methodName] = (...args) => {
-      const params = _.assign(argsToRequestParams(...args), {command: methodName, nonce: nonce()})
+      const params = {...argsToRequestParams(...args), command: methodName, nonce: nonce()}
       return rp(_.merge({
         url: api.url.private,
         method: 'POST',
@@ -124,9 +118,12 @@ const publicMethods = _({
   return24hVolume: () => ({}),
   returnCurrencies: () => ({}),
   returnLoanOrders: cur => ({currency: cur}),
-  returnOrderBook: (curA, curB, depth) => ({
-    currencyPair: _.lowerCase(curA) == 'all' ? 'all' :`${curA}_${curB}`
-  }),
+  // todo is depth optional? If it's not - remove ... &&
+  returnOrderBook: (curA, curB, depth = curB) =>
+    _.lowerCase(curA) == 'all'
+      ? {currencyPair: 'all', ...depth && {depth}}
+      : {currencyPair: `${_.upperCase(curA)}_${_.upperCase(curB)}`, ...depth && {depth}},
+  // }),
   // would be exposed as returnTradeHistoryPublic
   // because there is private method with the same name
   returnTradeHistory: (curA, curB, start, end) =>
@@ -136,7 +133,7 @@ const publicMethods = _({
 })
   .transform((acc, argsToRequestParams, methodName) =>
     acc[methodName] = (...args) => {
-      const params = _.assign(argsToRequestParams(...args), {command: methodName})
+      const params = {...argsToRequestParams(...args), command: methodName}
       return rp(_.merge({
         url: api.url.public,
         method: 'GET',
@@ -150,7 +147,7 @@ const publicMethods = _({
   .value()
 
 function genPublicHeaders () {
-  return _.assign(defaultHeaders, state.headers)
+  return {...defaultHeaders, ...state.headers}
 }
 
 function genPrivateHeaders (params) {
@@ -159,7 +156,7 @@ function genPrivateHeaders (params) {
 
   const paramsString = _.map(params, (v, k) => `${k}=${v}`).join('&')
   const sign = crypto.createHmac('sha512', state.secret).update(paramsString).digest('hex')
-  return _.assign(genPublicHeaders(), {Key: state.key, Sign: sign})
+  return {...genPublicHeaders(), Key: state.key, Sign: sign}
 }
 
 function formatHttpHeaderName (headerName) {
@@ -168,8 +165,7 @@ function formatHttpHeaderName (headerName) {
 
 module.exports = _.assignWith({patchState}, publicMethods, privateMethods,
   (ov, sv, k, o) => {
-    if (!ov || !sv) return
-    o[`${k}Public`] = ov
+    if (ov) o[`${k}Public`] = ov
     return sv
   }
 )

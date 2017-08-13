@@ -10,9 +10,8 @@ const {cookie, userAgent} = argv
 const api = require('./api').patchState(credentials, {headers: {cookie, userAgent}})
 
 ;(async () => {
-  // const resp = await api.returnTradeHistoryPublic('BTC', 'NXT', 1410158341, 1410499372)
-  // console.log(resp)
-  const resp = await api.returnLendingHistory(+moment().subtract(1, 'day'), +new Date)
+  const resp = await api.returnTradeHistoryPublic('BTC', 'NXT', 1410158341, 1410499372)
+  // const resp = await api.returnLendingHistory(+moment().subtract(1, 'day'), +new Date)
   console.log(resp)
 })()
 

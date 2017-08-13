@@ -5,7 +5,7 @@
     "autobahn": "^17.5.2",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
-    "poloniex-orderbook": "^3.0.0",
+    "poloniex-orderbook": "^3.2.0",
     "poloniex.js": "0.0.7",
     "request": "^2.81.0",
     "request-promise": "^4.2.1",
