@@ -123,7 +123,6 @@ const publicMethods = _({
     _.lowerCase(curA) == 'all'
       ? {currencyPair: 'all', ...depth && {depth}}
       : {currencyPair: `${_.upperCase(curA)}_${_.upperCase(curB)}`, ...depth && {depth}},
-  // }),
   // would be exposed as returnTradeHistoryPublic
   // because there is private method with the same name
   returnTradeHistory: (curA, curB, start, end) =>
