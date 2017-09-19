@@ -18,14 +18,16 @@ exports.getThrottle = (lim = 1, time = 1000) => {
   }
 }
 
-const last = [now() / 1000 | 0, 0]
-exports.nonce = () => {
-  const now_ = now() / 1000 | 0
-  if (last[0] == now_) {
-    last[1]++
-  } else {
-    last[0] = now_
-    last[1] = 0
+exports.getNonce = () => {
+  const last = [now() / 1000 | 0, 0]
+  return () => {
+    const now_ = now() / 1000 | 0
+    if (last[0] == now_) {
+      last[1]++
+    } else {
+      last[0] = now_
+      last[1] = 0
+    }
+    return last[0] + `${last[1]}`.padStart(3, '0')
   }
-  return last[0] + `${last[1]}`.padStart(3, '0')
 }

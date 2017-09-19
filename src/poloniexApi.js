@@ -4,14 +4,19 @@ const crypto = require('crypto')
 
 const rp = require('request-promise')
 const _ = require('lodash')
+const {
+  assign, merge, pick, mapKeys, lowerCase, map, upperFirst, words,
+  upperCase
+} = _
 
-const {api} = require('../config')
-const {getThrottle, nonce} = require('./utils')
-const throttle = getThrottle(api.cpsLimit, 1100)
+const {poloniex: apiConfig} = require('../config')
+const {getNonce, getThrottle} = require('./utils')
+const nonce = getNonce()
+const throttle = getThrottle(apiConfig.cpsLimit, 1100)
 
 const state = {}
 
-const defaultHeaders = _.mapKeys(
+const defaultHeaders = mapKeys(
   {
     accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
     acceptEncoding: 'gzip, deflate, br',
@@ -25,10 +30,10 @@ const defaultHeaders = _.mapKeys(
 )
 
 function patchState (...patches) {
-  const patch = _.assign(...patches)
-  const headers = _.mapKeys(patch.headers, (v, k) => formatHttpHeaderName(k))
-  state.headers = _.merge(state.headers, headers)
-  _.merge(state, _.pick(patch, 'key', 'secret'))
+  const patch = assign(...patches)
+  const headers = mapKeys(patch.headers, (v, k) => formatHttpHeaderName(k))
+  state.headers = merge(state.headers, headers)
+  merge(state, pick(patch, 'key', 'secret'))
   return module.exports
 }
 
@@ -39,10 +44,10 @@ const privateMethods = _({
   generateNewAddress: currency => ({currency}),
   returnDepositsWithdrawals: (start, end) => ({start, end}),
   returnOpenOrders: (curA, curB) => ({
-    currencyPair: _.lowerCase(curA) == 'all' ? 'all' :`${curA}_${curB}`
+    currencyPair: lowerCase(curA) == 'all' ? 'all' :`${curA}_${curB}`
   }),
   returnTradeHistory: (curA, curB) => ({
-    currencyPair: _.lowerCase(curA) == 'all' ? 'all' :`${curA}_${curB}`
+    currencyPair: lowerCase(curA) == 'all' ? 'all' :`${curA}_${curB}`
   }),
   returnOrderTrades: orderNumber => ({orderNumber}),
   buy: (curA, curB, amount, rate, {fillOrKill, immediateOrCancel, postOnly} = {}) => ({
@@ -83,7 +88,7 @@ const privateMethods = _({
     ...leadingRate && {leadingRate: leadingRate}
   }),
   getMarginPosition: (curA, curB) => ({
-    currencyPair: _.lowerCase(curA) == 'all' ? 'all' :`${curA}_${curB}`
+    currencyPair: lowerCase(curA) == 'all' ? 'all' :`${curA}_${curB}`
   }),
   closeMarginPosition: (curA, curB) => ({currencyPair: `${curA}_${curB}`}),
   createLoanOffer: (currency, amount, duration, autoRenew, lendingRate) => ({
@@ -101,8 +106,8 @@ const privateMethods = _({
   .transform((acc, argsToRequestParams, methodName) =>
     acc[methodName] = (...args) => {
       const params = {...argsToRequestParams(...args), command: methodName, nonce: nonce()}
-      return rp(_.merge({
-        url: api.url.private,
+      return rp(merge({
+        url: apiConfig.url.private,
         method: 'POST',
         headers: genPrivateHeaders(params),
         form: params,
@@ -120,9 +125,9 @@ const publicMethods = _({
   returnLoanOrders: cur => ({currency: cur}),
   // todo is depth optional? If it's not - remove ... &&
   returnOrderBook: (curA, curB, depth = curB) =>
-    _.lowerCase(curA) == 'all'
+    lowerCase(curA) == 'all'
       ? {currencyPair: 'all', ...depth && {depth}}
-      : {currencyPair: `${_.upperCase(curA)}_${_.upperCase(curB)}`, ...depth && {depth}},
+      : {currencyPair: `${upperCase(curA)}_${upperCase(curB)}`, ...depth && {depth}},
   // would be exposed as returnTradeHistoryPublic
   // because there is private method with the same name
   returnTradeHistory: (curA, curB, start, end) =>
@@ -133,8 +138,8 @@ const publicMethods = _({
   .transform((acc, argsToRequestParams, methodName) =>
     acc[methodName] = (...args) => {
       const params = {...argsToRequestParams(...args), command: methodName}
-      return rp(_.merge({
-        url: api.url.public,
+      return rp(merge({
+        url: apiConfig.url.public,
         method: 'GET',
         headers: genPublicHeaders(),
         qs: params,
@@ -153,16 +158,16 @@ function genPrivateHeaders (params) {
   if (!state.key) throw Error('key is not set')
   if (!state.secret) throw Error('secret is not set')
 
-  const paramsString = _.map(params, (v, k) => `${k}=${v}`).join('&')
+  const paramsString = map(params, (v, k) => `${k}=${v}`).join('&')
   const sign = crypto.createHmac('sha512', state.secret).update(paramsString).digest('hex')
   return {...genPublicHeaders(), Key: state.key, Sign: sign}
 }
 
 function formatHttpHeaderName (headerName) {
-  return _.words(headerName).map(_.upperFirst).join('-')
+  return words(headerName).map(upperFirst).join('-')
 }
 
-module.exports = _.assignWith({patchState}, publicMethods, privateMethods,
+module.exports = assignWith({patchState}, publicMethods, privateMethods,
   (ov, sv, k, o) => {
     if (ov) o[`${k}Public`] = ov
     return sv

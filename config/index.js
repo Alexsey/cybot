@@ -2,13 +2,17 @@
 
 const _ = require('lodash')
 
-exports.api = {
+exports.poloniex = _.merge({
   url: {
     'wamp': 'wss://api2.poloniex.com',
     'public': 'https://poloniex.com/public',
     'private': 'https://poloniex.com/tradingApi'
   },
   cpsLimit: 6
-}
+}, require('./privatePoloniex'))
 
-_.merge(exports, require('./envConfig'))
+exports.bittrix = _.merge({
+  url: 'https://bittrex.com/api/1.1/'
+}, require('./privateBittrix'))
+
+exports.db = require('./db')
