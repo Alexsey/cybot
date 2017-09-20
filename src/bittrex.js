@@ -2,7 +2,7 @@
 
 const _ = require('lodash')
 const {keys, omit, filter} = _
-const bittrex = require('./bittrexApi')
+const {all: bittrex} = require('./bittrexApi')
 
 ;(async () => {
   // const result = await bittrex.getOrder({uuid: '3470fa9e-e6e5-47b6-ac23-f1da41bacd4c'})
@@ -10,6 +10,7 @@ const bittrex = require('./bittrexApi')
   // const result = await bittrex.getBalances()
   // console.log(_.filter(result, 'balance'))
   // const result = await bittrex.getDepositHistory({currency: 'ETH'})
+  // const result = await bittrex.getBalance({currency: 'ETH'})
   const result = await bittrex.getTicker({market: 'USDT-BTC'})
   console.dir(result, {colors: true})
 })()
