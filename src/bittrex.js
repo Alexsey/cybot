@@ -1,19 +1,107 @@
 'use strict'
 
-const _ = require('lodash')
-const {keys, omit, filter} = _
+require('util').inspect.defaultOptions.colors = true
+require('util').inspect.styles.number = 'cyan'
+const _ = require('lodash') || false
+const moment = require('moment')
+const {keys, omit, filter, mapValues, sum, sumBy, groupBy, pick, map} = _
 const {all: bittrex} = require('./bittrexApi')
 
 ;(async () => {
   // const result = await bittrex.getOrder({uuid: '3470fa9e-e6e5-47b6-ac23-f1da41bacd4c'})
+
   // const result = await bittrex.getOrderHistory()
-  // const result = await bittrex.getBalances()
-  // console.log(_.filter(result, 'balance'))
-  // const result = await bittrex.getDepositHistory({currency: 'ETH'})
-  // const result = await bittrex.getBalance({currency: 'ETH'})
-  const result = await bittrex.getTicker({market: 'USDT-BTC'})
-  console.dir(result, {colors: true})
+  const {first: firstEthDepositHistory} = await bittrex.getDepositHistory({currency: 'ETH'})
+  const {first: firstEthWithdrawalHistory} = await bittrex.getWithdrawalHistory({currency: 'ETH'})
+  const {first: {balance}} = await bittrex.getBalance({currency: 'ETH'})
+  // const result = await bittrex.getTicker({market: 'USDT-BTC'})
+  // console.dir(result, {colors: true})
+  // console.dir(await getBalances(true), {colors: true})
+
+  const {first: firstEthOrders} = await getOrderHistory('ETH')
+  const [buyOrders, sellOrders] = _(firstEthOrders).partition(v =>
+    v.exchange.startsWith('ETH') && v.orderType.endsWith('SELL')
+    || v.exchange.endsWith('ETH') && v.orderType.endsWith('BUY')
+  )
+
+  const buy = sum([
+    sumBy(buyOrders.filter(o => o.exchange.startsWith('ETH')), 'price'),
+    sumBy(buyOrders.filter(o => o.exchange.endsWith('ETH')), 'quantity')
+  ])
+  const sell = sum([
+    sumBy(sellOrders.filter(o => o.exchange.startsWith('ETH')), 'price'),
+    sumBy(sellOrders.filter(o => o.exchange.endsWith('ETH')), 'quantity')
+  ])
+  // const commission = sumBy(buyOrders, 'commission') // 0.3257
+  // const commission = sumBy(sellOrders, 'commission') // 0.27072
+  // const commission = sum([
+  //   sumBy(buyOrders.filter(o => o.orderType.endsWith('SELL')), 'commission'),
+  //   sumBy(sellOrders.filter(o => o.orderType.endsWith('BUY')), 'commission')
+  // ]) // 0.7976
+  // const commission = sum([
+  //   sumBy(buyOrders.filter(o => o.orderType.endsWith('BUY')), 'commission'),
+  //   sumBy(sellOrders.filter(o => o.orderType.endsWith('SELL')), 'commission')
+  // ]) // -0.2011
+  const txCost = sum([
+    sumBy(firstEthDepositHistory, 'txCost'),
+    sumBy(firstEthWithdrawalHistory, 'txCost')
+  ])
+  const deposit = sumBy(firstEthDepositHistory, 'amount')
+  const withdrawal = sumBy(firstEthWithdrawalHistory, 'amount')
+
+  console.log(firstEthDepositHistory)
+
+  console.log('balance:', balance)
+  console.log('deposit:', deposit)
+  console.log('withdrawal:', withdrawal)
+  console.log('txCost:', txCost)
+  console.log('buy:', buy)
+  console.log('sell:', sell)
+  console.log('commission:', commission)
+
+  console.log(balance + deposit +  buy - withdrawal - txCost - sell - commission)
+
+  // console.dir(firstEthOrders)
+
+  // console.dir(sellOrders)
+  // console.log('\n\n\n\n\n')
+  // console.dir(map(buyOrders, v => pick(v, ['timeStamp', 'exchange', 'orderType', 'quantity', 'price', 'pricePerUnit'])))
+  // console.dir(buyOrders)
+  // console.dir(firstEthDepositHistory)
+  // console.log('buy total:', buy)
+  // console.log('balance:', firstEthBalance.balance)
+  // console.log('sell total:', sell)
+
+  // const todayOrders = firstEthOrders.filter(o => moment(o.timeStamp).isAfter('2017-09-21'))
+  // console.dir(todayOrders)
+
+  // console.log(commission, quantity)
+  // console.dir(firstEthOrders, {colors: true})
+  // console.dir((await getOrderHistory()).first.length, {colors: true})
+
+  // console.dir(filter((await bittrex.getOrderHistory()).first, 'quantityRemaining'), {colors: true})
 })()
+
+async function getOrderHistory (of) {
+  let result = await bittrex.getOrderHistory()
+  if (!of) return result
+  of = of.toUpperCase()
+  return mapValues(result, orders => filter(orders, order => order.exchange.includes(of)))
+}
+
+async function getBalances (format) {
+  let result = await bittrex.getBalances()
+  result = mapValues(result, bs => filter(bs, 'balance'))
+  if (format)
+    result = mapValues(result, balances => balances.map(balance =>
+      mapValues(balance, (v, k) =>
+        ['balance', 'available'].includes(k)
+          ? String(v.toFixed(16)).replace(/0*$/, '')
+          : v
+      )
+    ))
+  return result
+}
 
 const ol = {
   orderUuid: '3470fa9e-e6e5-47b6-ac23-f1da41bacd4c',
