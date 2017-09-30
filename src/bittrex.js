@@ -4,97 +4,27 @@ require('util').inspect.defaultOptions.colors = true
 require('util').inspect.styles.number = 'cyan'
 const _ = require('lodash') || false
 const moment = require('moment')
-const {keys, omit, filter, mapValues, sum, sumBy, groupBy, pick, map, invokeMap} = _
-const {all: bittrex} = require('./bittrexApi')
+const {
+  keys, omit, filter, mapValues, sum, sumBy, groupBy, pick, map, invokeMap,
+  round, reject
+} = _
+const {all: bittrex, first} = require('./bittrexApi')
+const {getBalancesAt, calcTotals, getBuySellOrders} = require('./bittrexHelpers')
 
 ;(async () => {
-  // const result = await bittrex.getOrder({uuid: '3470fa9e-e6e5-47b6-ac23-f1da41bacd4c'})
-  // const result = await bittrex.getOrderHistory()
-  // const result = await bittrex.getTicker({market: 'USDT-BTC'})
+  const orderHistory = await first.getOrderHistory()
+  const depositHistory = await first.getDepositHistory()
+  const withdrawalHistory = await first.getWithdrawalHistory()
+  const balances = await first.getBalances()
 
-/*  const {first: firstEthDepositHistory} = await bittrex.getDepositHistory({currency: 'ETH'})
-  const {first: firstEthWithdrawalHistory} = await bittrex.getWithdrawalHistory({currency: 'ETH'})
-  const {first: {balance}} = await bittrex.getBalance({currency: 'ETH'})
-  const {first: firstEthOrders} = await getOrderHistory('ETH')
-  const [buyOrders, sellOrders] = _(firstEthOrders).partition(v =>
-    v.exchange.startsWith('ETH') && v.orderType.endsWith('SELL')
-    || v.exchange.endsWith('ETH') && v.orderType.endsWith('BUY')
-  )
+  const firstData = {orderHistory, depositHistory, withdrawalHistory, balances}
+  console.log(calcTotals(firstData))
 
-  const buy = sum([
-    sumBy(buyOrders.filter(o => o.exchange.startsWith('ETH')), 'price'),
-    sumBy(buyOrders.filter(o => o.exchange.endsWith('ETH')), 'quantity')
-  ])
-  const sell = sum([
-    sumBy(sellOrders.filter(o => o.exchange.startsWith('ETH')), 'price'),
-    sumBy(sellOrders.filter(o => o.exchange.endsWith('ETH')), 'quantity')
-  ])
-  const commission = sumBy(firstEthOrders.filter(o => o.exchange.startsWith('ETH')), 'commission')
-  const txCost = sum([
-    sumBy(firstEthDepositHistory, 'txCost'),
-    sumBy(firstEthWithdrawalHistory, 'txCost')
-  ])
-  const deposit = sumBy(firstEthDepositHistory, 'amount')
-  const withdrawal = sumBy(firstEthWithdrawalHistory, 'amount')
-
-  console.log('balance:', balance)
-  console.log('deposit:', deposit)
-  console.log('withdrawal:', withdrawal)
-  console.log('txCost:', txCost)
-  console.log('buy:', buy)
-  console.log('sell:', sell)
-  console.log('commission:', commission)
-
-  console.log(deposit + buy - balance - withdrawal - txCost - sell - commission)*/
-
-  // const todayOrders = firstEthOrders.filter(o => moment(o.timeStamp).isAfter('2017-09-21'))
-  // console.dir(todayOrders)
-
-  // console.log(commission, quantity)
-  // console.dir(firstEthOrders, {colors: true})
-  // console.dir((await getOrderHistory()).first.length, {colors: true})
-
-  // console.dir(filter((await bittrex.getOrderHistory()).first, 'quantityRemaining'), {colors: true})
-
-  const {first: depositHistory} = await bittrex.getDepositHistory()
-  const {first: withdrawalHistory} = await bittrex.getWithdrawalHistory()
-  const {first: balances} = await bittrex.getBalances()
-  const {first: orderHistory} = await bittrex.getOrderHistory()
-
-  console.log(_(balances).map(({currency, balance}) => {
-    const deposit = _(depositHistory).filter({currency}).sumBy('amount')
-    const withdrawal = _(withdrawalHistory).filter({currency}).sumBy('amount')
-    const commission = sumBy(orderHistory.filter(o => o.exchange.startsWith('ETH')), 'commission')
-    const txCost = sum([
-      sumBy(filter(depositHistory, {currency}), 'txCost'),
-      sumBy(filter(withdrawalHistory, {currency}), 'txCost')
-    ])
-    const [buyOrders, sellOrders] = _(orderHistory)
-      .filter(o => o.exchange.includes(currency))
-      .partition(v =>
-        v.exchange.startsWith('ETH') && v.orderType.endsWith('SELL')
-        || v.exchange.endsWith('ETH') && v.orderType.endsWith('BUY')
-      )
-    const buy = sum([
-      sumBy(buyOrders.filter(o => o.exchange.startsWith('ETH')), 'price'),
-      sumBy(buyOrders.filter(o => o.exchange.endsWith('ETH')), 'quantity')
-    ])
-    const sell = sum([
-      sumBy(sellOrders.filter(o => o.exchange.startsWith('ETH')), 'price'),
-      sumBy(sellOrders.filter(o => o.exchange.endsWith('ETH')), 'quantity')
-    ])
-    return [
-      `currency: ${currency}`,
-      `deposit: ${deposit}`,
-      `buy: ${buy}`,
-      `balance: ${balance}`,
-      `withdrawal: ${withdrawal}`,
-      `txCost: ${txCost}`,
-      `sell: ${sell}`,
-      `commission: ${commission}`,
-      `total: ${deposit + buy - balance - withdrawal - txCost - sell - commission}`,
-    ]
-  }).invokeMap('join', '\n').join('\n\n'))
+  // const orders = orderHistory.filter(o => o.exchange.includes('XRP'))
+  // const [buyOrders, sellOrders] = getBuySellOrders(orders, 'XRP')
+  // console.log(buyOrders)
+  // console.log('\n\n\n')
+  // console.log(sellOrders)
 })()
 
 async function getOrderHistory (of) {
