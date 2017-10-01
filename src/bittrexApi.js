@@ -11,8 +11,8 @@ const apis = transform(config.bittrix.credentials, (api, {name, key, secrets}) =
   const secret = secrets.market || secrets.limit || secrets.withdraw || secrets.read
   api[name] = mapValues({
       // public
-      getMarkets: async (opts = {}) => {
-        const resp = await bb.promisify(bittrexRaw.getmarkets)(opts)
+      getMarkets: async () => {
+        const resp = await bb.promisify(bittrexRaw.getmarkets)()
         return resp.success
           ? formatKeys(resp)
           : resp
@@ -29,8 +29,8 @@ const apis = transform(config.bittrix.credentials, (api, {name, key, secrets}) =
           ? formatKeys(resp)
           : resp
       },
-      getMarketSummaries: async (opts = {}) => {
-        const resp = await bb.promisify(bittrexRaw.getmarketsummaries)(opts)
+      getMarketSummaries: async () => {
+        const resp = await bb.promisify(bittrexRaw.getmarketsummaries)()
         return resp.success
           ? formatKeys(resp)
           : resp

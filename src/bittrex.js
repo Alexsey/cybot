@@ -6,32 +6,136 @@ const _ = require('lodash') || false
 const moment = require('moment')
 const {
   keys, omit, filter, mapValues, sum, sumBy, groupBy, pick, map, invokeMap,
-  round, reject
+  round, reject, partition, omitBy, find, orderBy
 } = _
 const {all: bittrex, first} = require('./bittrexApi')
-const {getBalancesAt, calcTotals, getBuySellOrders} = require('./bittrexHelpers')
+const {getBalancesAt, calcTotals, getBuySellOrders, getRates, getCommission} = require('./bittrexHelpers')
 
 ;(async () => {
-  const orderHistory = await first.getOrderHistory()
-  const depositHistory = await first.getDepositHistory()
-  const withdrawalHistory = await first.getWithdrawalHistory()
-  const balances = await first.getBalances()
+  const [
+    marketSummaries,
+    orderHistory,
+    // depositHistory,
+    // withdrawalHistory,
+    balances
+  ] = await Promise.all([
+    bittrex.getMarketSummaries(),
+    bittrex.getOrderHistory(),
+    // bittrex.getDepositHistory(),
+    // bittrex.getWithdrawalHistory(),
+    bittrex.getBalances()
+  ])
 
-  const firstData = {orderHistory, depositHistory, withdrawalHistory, balances}
-  console.log(calcTotals(firstData))
+  const rates = getRates(marketSummaries)
 
-  // const orders = orderHistory.filter(o => o.exchange.includes('XRP'))
-  // const [buyOrders, sellOrders] = getBuySellOrders(orders, 'XRP')
-  // console.log(buyOrders)
-  // console.log('\n\n\n')
-  // console.log(sellOrders)
+  const firstData = {
+    orderHistory,
+    // depositHistory,
+    // withdrawalHistory,
+    balances,
+    rates
+  }
+
+  console.log(formGeneralTableData(firstData))
+  // console.log(calcTotals(firstData))
 })()
 
-async function getOrderHistory (of) {
-  let result = await bittrex.getOrderHistory()
-  if (!of) return result
-  of = of.toUpperCase()
-  return mapValues(result, orders => filter(orders, order => order.exchange.includes(of)))
+function formGeneralTableData (data) {
+  const {rates} = data
+  const today = getToday()
+  const yesterday = getYesterday()
+
+  const table = _(data.balances).keys().map(traderName => {
+    const balances = data.balances[traderName]
+    const orderHistory = data.orderHistory[traderName]
+    const openOrders = reject(orderHistory, 'closed')
+
+    const traderData = {balances, orderHistory}
+
+    const periodStartDate = getCurrentReportPeriodStart()
+    const startPeriodUSDT = getBalancesAt(traderData, periodStartDate, 'USDT')
+
+    const positionsInUSDT = _(balances)
+      .reject({currency: 'USDT'})
+      .sumBy(({currency, balance}) => balance * rates[currency])
+
+    const USDT = find(balances, {currency: 'USDT'}).balance
+    const inUSDT = positionsInUSDT + USDT
+
+    const USDTToday = getBalancesAt(traderData, today, 'USDT')
+    const inUSDTToday = _(getBalancesAt(traderData, today))
+      .map((balance, currency) => rates[currency] * balance)
+      .sum()
+    const USDTTodayRate = USDT / USDTToday
+    const USDTTodayDiff = USDT - USDTToday
+
+
+    const USDTYesterday = getBalancesAt(traderData, yesterday, 'USDT')
+    const USDTYesterdayRate = USDT / USDTYesterday
+
+    const commissionsInUSDTToday = _(orderHistory)
+      .filter(o => moment(o.timeStamp).isAfter(today))
+      .sumBy(({exchange, commission}) => {
+        const currency = exchange.match(/^\w+/)[0]
+        return rates[currency] * commission
+      })
+
+    const net = inUSDT - inUSDTToday - commissionsInUSDTToday
+
+    const open = sumBy(openOrders, ({exchange, orderType, price, quantity}) => {
+      const [[currency], amount] = orderType.match(/buy/i)
+        ? [exchange.match(/^\w+/), price]
+        : [exchange.match(/\w+$/), quantity]
+      return rates[currency] * amount
+    })
+
+    return {
+      traderName,
+      startPeriodUSDT,
+      positionsInUSDT,
+      USDT,
+      USDTToday,
+      USDTYesterday,
+      USDTTodayRate,
+      USDTTodayDiff,
+      USDTYesterdayRate,
+      commissionsInUSDTToday,
+      net,
+      open
+    }
+  }).value()
+
+  table.push({
+    traderName: 'total',
+    startPeriodUSDT: sumBy(table, 'startPeriodUSDT'),
+    positionsInUSDT: sumBy(table, 'positionsInUSDT'),
+    USDT: sumBy(table, 'USDT'),
+    USDTTodayRate: sumBy(table, 'USDT') / sumBy(table, 'USDTToday'),
+    USDTTodayDiff: sumBy(table, 'USDTTodayDiff'),
+    USDTYesterdayRate: sumBy(table, 'USDT') / sumBy(table, 'USDTYesterday'),
+    commissionsInUSDTToday: sumBy(table, 'commissionsInUSDTToday'),
+    net: sumBy(table, 'net'),
+    open: sumBy(table, 'open'),
+  })
+
+  return table.map(raw => omit(raw, ['USDTToday', 'USDTYesterday']))
+
+
+  function getCurrentReportPeriodStart () {
+    return moment().date() >= 5
+      ? moment().date(5).hour(6).minute(0).second(0)
+      : moment().subtract(1, 'month').date(5).hour(6).minute(0).second(0)
+  }
+
+  function getToday () {
+    return moment().hour() >= 6
+      ? moment().hour(6).minute(0).second(0)
+      : moment().subtract(1, 'day').hour(6).minute(0).second(0)
+  }
+
+  function getYesterday () {
+    return getToday().subtract(1, 'day')
+  }
 }
 
 async function getBalances (format) {
@@ -46,24 +150,6 @@ async function getBalances (format) {
       )
     ))
   return result
-}
-
-const ol = {
-  orderUuid: '3470fa9e-e6e5-47b6-ac23-f1da41bacd4c',
-  exchange: 'BTC-CLAM',
-  timeStamp: '2017-09-19T16:40:41.32',
-  orderType: 'LIMIT_BUY',
-  limit: 0.00202276,
-  quantity: 256.43180605,
-  quantityRemaining: 0,
-  commission: 0.00129673,
-  price: 0.51869487,
-  pricePerUnit: 0.00202273,
-  isConditional: false,
-  condition: 'NONE',
-  conditionTarget: null,
-  immediateOrCancel: false,
-  closed: '2017-09-19T16:40:41.897'
 }
 
 const o = {
@@ -92,7 +178,7 @@ const o = {
   conditionTarget: null
 }
 
-const ol_ =  {
+const ol =  {
   orderUuid: '7b0f9965-8ef7-4907-ae35-daea0045d41b',
   exchange: 'BTC-ETH',
   timeStamp: '2017-09-21T14:33:29.42',
