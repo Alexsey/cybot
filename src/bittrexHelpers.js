@@ -18,7 +18,7 @@ module.exports = {
 
   getRates,
 
-  getTrade,
+  getTradeMinMax,
   getBuySellOrders,
   getBuyAmount,
   getSellAmount,
@@ -52,7 +52,7 @@ function getAllBalancesAt (data, at, currency) {
 function getBalanceOfTrader (data, at, currency) {
   const {orderHistory, balances, depositHistory, withdrawalHistory} = data
   const {balance} = find(balances, {currency})
-  const trade = getTrade(orderHistory, {currency, after: at})
+  const [trade] = getTradeMinMax(orderHistory, {currency, after: at})
   const io = getIO(depositHistory, withdrawalHistory, {currency, after: at})
   return balance - trade - io
 }
@@ -192,4 +192,35 @@ function getDeposit (deposits, {currency, rates, after}) {
     : _(deposits).sumBy(({currency, amount}) =>
       rates[currency] * amount
     )
+}
+
+function getTradeMinMax (orders, {currency, rates, after}) {
+  if (!currency && !rates) throw Error('Need currency or rates')
+  if (after) orders = orders.filter(o => moment(o.timeStamp).isAfter(after))
+  let [cur, min, max] = [0, 0, 0]
+  currency
+    ? orders.forEach(({exchange, orderType, price, quantity, commission}) => {
+      const [curA, curB] = exchange.split('-')
+      if (![curA, curB].includes(currency)) return
+      orderType.match(/buy/i)
+        ? curA == currency
+          ? cur = cur - price - commission
+          : cur += quantity
+        : curA == currency
+          ? cur = cur + price - commission
+          : cur -= quantity
+      min = Math.min(min, cur)
+      max = Math.max(max, cur)
+    })
+    : orders.forEach(({exchange, orderType, price, quantity, commission}) => {
+      const [curA, curB] = exchange.split('-')
+      const amountA = price * rates[curA]
+      const amountB = quantity * rates[curB]
+      const isBuyOrder = orderType.match(/buy/i)
+      const commissionUSDT = commission * rates[curA]
+      cur += (isBuyOrder ? amountB - amountA : amountA - amountB) - commissionUSDT
+      min = Math.min(min, cur)
+      max = Math.max(max, cur)
+    })
+  return [cur, min, max]
 }

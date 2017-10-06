@@ -10,7 +10,7 @@ const {
 } = _
 const {all: bittrex, first} = require('./bittrexApi')
 const {
-  getBalancesAt, getRates, getTrade
+  getBalancesAt, getRates, getTradeMinMax
 } = require('./bittrexHelpers')
 
 ;(async () => {
@@ -128,22 +128,31 @@ function formGeneralTableData (data) {
       .map((balance, currency) => rates[currency] * balance).sum()
     const startUSDT = getBalancesAt(traderData, periodStartDate, 'USDT')
     const startPositionsInUSDT = startInUSDT - startUSDT
-    const startTrade = getTrade(orderHistory, {rates, after: periodStartDate})
-    const startRate = startInUSDT ? startTrade / startInUSDT : 'up'
+    const [startTradeAbs, startMinAbs, startMaxAbs]
+      = getTradeMinMax(orderHistory, {rates, after: periodStartDate})
+    const startMinRel = startInUSDT ? startMinAbs / startInUSDT : 'up'
+    const startMaxRel = startInUSDT ? startMaxAbs / startInUSDT : 'up'
+    const startTradeRel = startInUSDT ? startTradeAbs / startInUSDT : 'up'
 
     const todayInUSDT = _(getBalancesAt(traderData, today))
       .map((balance, currency) => rates[currency] * balance).sum()
     const todayUSDT = getBalancesAt(traderData, today, 'USDT')
     const todayPositionsInUSDT = todayInUSDT - todayUSDT
-    const todayTrade = getTrade(orderHistory, {rates, after: today})
-    const todayRate = todayInUSDT ? todayTrade / todayInUSDT : 'up'
+    const [todayTradeAbs, todayMinAbs, todayMaxAbs]
+      = getTradeMinMax(orderHistory, {rates, after: today})
+    const todayMinRel = todayInUSDT ? todayMinAbs / todayInUSDT : 'up'
+    const todayMaxRel = todayInUSDT ? todayMaxAbs / todayInUSDT : 'up'
+    const todayTradeRel = todayInUSDT ? todayTradeAbs / todayInUSDT : 'up'
 
     const yesterdayInUSDT = _(getBalancesAt(traderData, yesterday))
       .map((balance, currency) => rates[currency] * balance).sum()
     const yesterdayUSDT = getBalancesAt(traderData, yesterday, 'USDT')
     const yesterdayPositionsInUSDT = yesterdayInUSDT - yesterdayUSDT
-    const yesterdayTrade = getTrade(orderHistory, {rates, after: yesterday})
-    const yesterdayRate = yesterdayInUSDT ? yesterdayTrade / yesterdayInUSDT : 'up'
+    const [yesterdayTradeAbs, yesterdayMinAbs, yesterdayMaxAbs]
+      = getTradeMinMax(orderHistory, {rates, after: yesterday})
+    const yesterdayMinRel = yesterdayInUSDT ? yesterdayMinAbs / yesterdayInUSDT : 'up'
+    const yesterdayMaxRel = yesterdayInUSDT ? yesterdayMaxAbs / yesterdayInUSDT : 'up'
+    const yesterdayTradeRel = yesterdayInUSDT ? yesterdayTradeAbs / yesterdayInUSDT : 'up'
 
     return {
       traderName,
@@ -151,20 +160,32 @@ function formGeneralTableData (data) {
       startInUSDT,
       startUSDT,
       startPositionsInUSDT,
-      startTrade,
-      startRate,
+      startTradeAbs,
+      startTradeRel,
+      startMinAbs,
+      startMinRel,
+      startMaxAbs,
+      startMaxRel,
 
       yesterdayInUSDT,
       yesterdayUSDT,
       yesterdayPositionsInUSDT,
-      yesterdayTrade,
-      yesterdayRate,
+      yesterdayTradeAbs,
+      yesterdayTradeRel,
+      yesterdayMinAbs,
+      yesterdayMinRel,
+      yesterdayMaxAbs,
+      yesterdayMaxRel,
 
       todayInUSDT,
       todayUSDT,
       todayPositionsInUSDT,
-      todayTrade,
-      todayRate,
+      todayTradeAbs,
+      todayTradeRel,
+      todayMinAbs,
+      todayMinRel,
+      todayMaxAbs,
+      todayMaxRel,
 
       inUSDT,
       positionsInUSDT,
@@ -173,11 +194,11 @@ function formGeneralTableData (data) {
   }).value()
 
   const totalStartInUSDT = sumBy(table, 'startInUSDT')
-  const totalStartTrade = sumBy(table, 'startTrade')
+  const totalStartTradeAbs = sumBy(table, 'startTradeAbs')
   const totalYesterdayInUSDT = sumBy(table, 'yesterdayInUSDT')
-  const totalYesterdayTrade = sumBy(table, 'yesterdayTrade')
+  const totalYesterdayTradeAbs = sumBy(table, 'yesterdayTradeAbs')
   const totalTodayInUSDT = sumBy(table, 'todayInUSDT')
-  const totalTodayTrade = sumBy(table, 'todayTrade')
+  const totalTodayTradeAbs = sumBy(table, 'todayTradeAbs')
 
   table.push({
     traderName: 'total',
@@ -185,20 +206,20 @@ function formGeneralTableData (data) {
     startInUSDT: totalStartInUSDT,
     startUSDT: sumBy(table, 'startUSDT'),
     startPositionsInUSDT: sumBy(table, 'startPositionsInUSDT'),
-    startTrade: totalStartTrade,
-    startRate: totalStartInUSDT ? totalStartTrade / totalStartInUSDT : 'up',
+    startTradeAbs: totalStartTradeAbs,
+    startTradeRel: totalStartInUSDT ? totalStartTradeAbs / totalStartInUSDT : 'up',
 
     yesterdayInUSDT: totalYesterdayInUSDT,
     yesterdayUSDT: sumBy(table, 'yesterdayUSDT'),
     yesterdayPositionsInUSDT: sumBy(table, 'yesterdayPositionsInUSDT'),
-    yesterdayTrade: totalYesterdayTrade,
-    yesterdayRate: totalYesterdayInUSDT ? totalYesterdayTrade / totalYesterdayInUSDT : 'up',
+    yesterdayTradeAbs: totalYesterdayTradeAbs,
+    yesterdayTradeRel: totalYesterdayInUSDT ? totalYesterdayTradeAbs / totalYesterdayInUSDT : 'up',
 
     todayInUSDT: totalTodayInUSDT,
     todayUSDT: sumBy(table, 'todayUSDT'),
     todayPositionsInUSDT: sumBy(table, 'todayPositionsInUSDT'),
-    todayTrade: totalTodayTrade,
-    todayRate: totalTodayInUSDT ? totalTodayTrade / totalTodayInUSDT : 'up',
+    todayTradeAbs: totalTodayTradeAbs,
+    todayTradeRel: totalTodayInUSDT ? totalTodayTradeAbs / totalTodayInUSDT : 'up',
 
     inUSDT: sumBy(table, 'inUSDT'),
     positionsInUSDT: sumBy(table, 'positionsInUSDT'),
