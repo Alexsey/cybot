@@ -8,6 +8,7 @@
     "bluebird": "^3.5.0",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
+    "moment-timezone": "^0.5.13",
     "node-bittrex-api": "^0.7.5",
     "request": "^2.82.0",
     "request-promise": "^4.2.1",

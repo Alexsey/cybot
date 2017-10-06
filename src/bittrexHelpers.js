@@ -4,19 +4,30 @@ const moment = require('moment')
 const _ = require('lodash') || false
 const {
   keys, omit, filter, mapValues, sum, sumBy, groupBy, pick, map, invokeMap,
-  round, transform, find, flatMap, remove
+  round, transform, find, flatMap, remove, reject
 } = _
+
+/*
+ now = past + trade + io
+ trade = buy - sell - commission
+ io = deposit - withdrawal - txCost
+*/
 
 module.exports = {
   getBalancesAt,
-  calcTotals,
-  getBuySellOrders,
+
   getRates,
+
+  getTrade,
+  getBuySellOrders,
   getBuyAmount,
   getSellAmount,
   getCommission,
+
+  getIO,
   getWithdrawal,
-  getDeposit
+  getDeposit,
+  getTxCost,
 }
 
 function getBalancesAt (data, at, currency) {
@@ -39,37 +50,11 @@ function getAllBalancesAt (data, at, currency) {
 }
 
 function getBalanceOfTrader (data, at, currency) {
-  const {orderHistory, balances} = data
+  const {orderHistory, balances, depositHistory, withdrawalHistory} = data
   const {balance} = find(balances, {currency})
-  const [buyOrders, sellOrders] = getBuySellOrders(orderHistory, currency, at)
-  const buy = getBuyAmount(buyOrders, currency)
-  const sell = getSellAmount(sellOrders, currency)
-  const commission = getCommission(orderHistory, currency, at)
-  return balance - buy + sell + commission
-}
-
-function calcTotals (data) {
-  const {depositHistory, withdrawalHistory, orderHistory} = data
-  return transform(data.balances, (acc, {currency, balance}) => {
-    const deposit = getDeposit(depositHistory, currency)
-    const withdrawal = getWithdrawal(withdrawalHistory, currency)
-    const commission = getCommission(orderHistory, currency)
-    const txCost = getTxCost(depositHistory, withdrawalHistory, currency)
-    const [buyOrders, sellOrders] = getBuySellOrders(orderHistory, currency)
-    const buy = getBuyAmount(buyOrders, currency)
-    const sell = getSellAmount(sellOrders, currency)
-    acc[currency] = {
-      currency,
-      deposit,
-      buy,
-      balance,
-      withdrawal,
-      txCost,
-      sell,
-      commission,
-      total: round(deposit + buy - balance - withdrawal - txCost - sell - commission, 5),
-    }
-  }, {})
+  const trade = getTrade(orderHistory, {currency, after: at})
+  const io = getIO(depositHistory, withdrawalHistory, {currency, after: at})
+  return balance - trade - io
 }
 
 function getRates (marketSummaries) {
@@ -98,9 +83,31 @@ function getRates (marketSummaries) {
   return rates
 }
 
-function getBuySellOrders (orders, currency, after = new Date(0)) {
+function getTrade (orders, {currency, rates, after}) {
+  if (!currency && !rates) throw Error('Need currency or rates')
+  if (after) orders = orders.filter(o => moment(o.timeStamp).isAfter(after))
+  if (currency) {
+    const commission = getCommission(orders, {currency})
+    const [buyOrders, sellOrders] = getBuySellOrders(orders, currency)
+    const buy = getBuyAmount(buyOrders, currency)
+    const sell = getSellAmount(sellOrders, currency)
+    return buy - sell - commission
+  } else {
+    const commission = getCommission(orders, {rates})
+    const amount = _(orders).sumBy(({exchange, orderType, price, quantity}) => {
+      const [curA, curB] = exchange.split('-')
+      const amountA = price * rates[curA]
+      const amountB = quantity * rates[curB]
+      const isBuyOrder = orderType.match(/buy/i)
+      return isBuyOrder ? amountB - amountA : amountA - amountB
+    })
+    return amount - commission
+  }
+}
+
+function getBuySellOrders (orders, currency, after) {
+  if (after) orders = orders.filter(o => moment(o.timeStamp).isAfter(after))
   return _(orders)
-    .filter(o => moment(o.timeStamp).isAfter(after))
     .filter(o => o.exchange.includes(currency))
     .partition(v =>
       v.exchange.startsWith(currency) && v.orderType.endsWith('SELL')
@@ -121,24 +128,68 @@ function getSellAmount (orders, currency) {
     - sumBy(orders.filter(o => o.exchange.endsWith(currency)), 'quantityRemaining')
 }
 
-function getCommission (orders, currency, after = new Date(0)) {
-  return sumBy(orders
-    .filter(o => moment(o.timeStamp).isAfter(after))
-    .filter(o => o.exchange.startsWith(currency)
-    ), 'commission')
+function getCommission (orders, {currency, rates, after}) {
+  if (!currency && !rates) throw Error('Need currency or rates')
+  if (after) orders = orders.filter(o => moment(o.timeStamp).isAfter(after))
+  return currency
+    ? _(orders)
+      .filter(({exchange}) => exchange.startsWith(currency))
+      .sumBy('commission')
+    : _(orders).sumBy(({exchange, commission}) => {
+      const currency = exchange.match(/^\w+/)[0]
+      return rates[currency] * commission
+    })
 }
 
-function getTxCost (depositHistory, withdrawalHistory, currency) {
-  return sum([
-    sumBy(filter(depositHistory, {currency}), 'txCost'),
-    sumBy(filter(withdrawalHistory, {currency}), 'txCost')
-  ])
+function openOrdersInUSDT (orders, rates) {
+  return _(orders)
+    .reject('closed')
+    .sumBy(({exchange, orderType, price, quantity}) => {
+      const [[currency], amount] = orderType.match(/buy/i)
+        ? [exchange.match(/^\w+/), price]
+        : [exchange.match(/\w+$/), quantity]
+      return rates[currency] * amount
+    })
 }
 
-function getWithdrawal (withdrawals, currency) {
-  return _(withdrawals).filter({currency}).sumBy('amount')
+function getIO (deposits, withdrawals, {currency, rates, after}) {
+  return getDeposit(deposits, {currency, rates, after})
+    - getWithdrawal(withdrawals, {currency, rates, after})
+    - getTxCost(deposits, withdrawals, {currency, rates, after})
 }
 
-function getDeposit (deposits, currency) {
-  return _(deposits).filter({currency}).sumBy('amount')
+function getTxCost (deposits, withdrawals, {currency, rates, after}) {
+  if (!currency && !rates) throw Error('Need currency or rates')
+  withdrawals = reject(withdrawals, 'pendingPayment')
+  if (after) {
+    deposits = deposits.filter(d => moment(d.lastUpdated).isAfter(after))
+    withdrawals = withdrawals.filter(w => moment(w.opened).isAfter(after))
+  }
+  let payments = [...deposits, ...withdrawals]
+  return currency
+    ? _(payments).filter({currency}).sumBy('txCost') || 0
+    : _(payments).sumBy(({currency, txCost}) =>
+      rates[currency] * txCost || 0
+    )
+}
+
+function getWithdrawal (withdrawals, {currency, rates, after}) {
+  if (!currency && !rates) throw Error('Need currency or rates')
+  withdrawals = reject(withdrawals, 'pendingPayment')
+  if (after) withdrawals = withdrawals.filter(w => moment(w.opened).isAfter(after))
+  return currency
+    ? _(withdrawals).filter({currency}).sumBy('amount')
+    : _(withdrawals).sumBy(({currency, amount}) =>
+      rates[currency] * amount
+    )
+}
+
+function getDeposit (deposits, {currency, rates, after}) {
+  if (!currency && !rates) throw Error('Need currency or rates')
+  if (after) deposits = deposits.filter(o => moment(o.lastUpdated).isAfter(after))
+  return currency
+    ? _(deposits).filter({currency}).sumBy('amount')
+    : _(deposits).sumBy(({currency, amount}) =>
+      rates[currency] * amount
+    )
 }
