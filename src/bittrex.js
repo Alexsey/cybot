@@ -6,7 +6,7 @@ const _ = require('lodash') || false
 const moment = require('moment-timezone') || false
 const {
   keys, omit, filter, mapValues, sum, sumBy, groupBy, pick, map, invokeMap,
-  round, reject, partition, omitBy, find, orderBy
+  round, reject, partition, omitBy, find, orderBy, cloneDeepWith
 } = _
 const {all: bittrex, first} = require('./bittrexApi')
 const {
@@ -38,71 +38,132 @@ const {
     rates
   }
 
-  console.log(formGeneralTableData(data))
+  // console.log(formGeneralTableData(data))
+  console.log(formTraderTableData(data, 'first'))
 })()
 
 function formTraderTableData (data, traderName) {
   const {rates} = data
-  const {balances} = data[traderName]
-  const {orderHistory} = data[traderName]
+  const balances = data.balances[traderName]
+  const orderHistory = data.orderHistory[traderName]
+  const withdrawalHistory = data.withdrawalHistory[traderName]
+  const depositHistory = data.depositHistory[traderName]
   const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
   const yesterday = moment(today).subtract(1, 'day')
   const periodStartDate = moment(today).date(1)
-  const traderData = {balances, orderHistory}
+  const traderData = {balances, orderHistory, withdrawalHistory, depositHistory}
 
   const table = balances.map(({balance, currency}) => {
-    const startUSDT = getBalancesAt(traderData, periodStartDate, 'USDT')
+    const startBalance = getBalancesAt(traderData, periodStartDate, currency)
+    const startInUSDT = startBalance * rates[currency]
 
-    const USDT = find(balances, {currency: 'USDT'}).balance
+    const [startTradeAbs, startMinAbs, startMaxAbs]
+      = getTradeMinMax(orderHistory, {currency, after: periodStartDate})
+    const startTradeAbsInUSDT = startTradeAbs * rates[currency]
+    const startMinAbsInUSDT = startMinAbs * rates[currency]
+    const startMaxAbsInUSDT = startMaxAbs * rates[currency]
+    const startTradeRel = startTradeAbs + startBalance
+    const startMinRel = startMinAbs + startBalance
+    const startMaxRel = startMaxAbs + startBalance
+    const startTradeRelInUSDT = startMaxAbsInUSDT + startInUSDT
+    const startMinRelInUSDT = startMaxAbsInUSDT + startInUSDT
+    const startMaxRelInUSDT = startMaxAbsInUSDT + startInUSDT
+    const startTradeAbsPct = startTradeAbs / startInUSDT
+    const startMinAbsPct = startMinAbs / startInUSDT
+    const startMaxAbsPct = startMaxAbs / startInUSDT
+    const startMinRelPct = startMinRel / startInUSDT
+    const startMaxRelPct = startMaxRel / startInUSDT
+    const startTradeRelPct = startTradeRel / startInUSDT
+    
+
+    const todayBalance = getBalancesAt(traderData, today, currency)
+    const todayInUSDT = todayBalance * rates[currency]
+
+    const [todayTradeAbs, todayMinAbs, todayMaxAbs]
+      = getTradeMinMax(orderHistory, {currency, after: today})
+    const todayTradeAbsInUSDT = todayTradeAbs * rates[currency]
+    const todayMinAbsInUSDT = todayMinAbs * rates[currency]
+    const todayMaxAbsInUSDT = todayMaxAbs * rates[currency]
+    const todayTradeRel = todayTradeAbs + todayBalance
+    const todayMinRel = todayMinAbs + todayBalance
+    const todayMaxRel = todayMaxAbs + todayBalance
+    const todayTradeRelInUSDT = todayMaxAbsInUSDT + todayInUSDT
+    const todayMinRelInUSDT = todayMaxAbsInUSDT + todayInUSDT
+    const todayMaxRelInUSDT = todayMaxAbsInUSDT + todayInUSDT
+    const todayTradeAbsPct = todayTradeAbs / todayInUSDT
+    const todayMinAbsPct = todayMinAbs / todayInUSDT
+    const todayMaxAbsPct = todayMaxAbs / todayInUSDT
+    const todayMinRelPct = todayMinRel / todayInUSDT
+    const todayMaxRelPct = todayMaxRel / todayInUSDT
+    const todayTradeRelPct = todayTradeRel / todayInUSDT
+    
+
+    const yesterdayBalance = getBalancesAt(traderData, yesterday, currency)
+    const yesterdayInUSDT = yesterdayBalance * rates[currency]
+
+    const [yesterdayTradeAbs, yesterdayMinAbs, yesterdayMaxAbs]
+      = getTradeMinMax(orderHistory, {currency, after: yesterday})
+    const yesterdayTradeAbsInUSDT = yesterdayTradeAbs * rates[currency]
+    const yesterdayMinAbsInUSDT = yesterdayMinAbs * rates[currency]
+    const yesterdayMaxAbsInUSDT = yesterdayMaxAbs * rates[currency]
+    const yesterdayTradeRel = yesterdayTradeAbs + yesterdayBalance
+    const yesterdayMinRel = yesterdayMinAbs + yesterdayBalance
+    const yesterdayMaxRel = yesterdayMaxAbs + yesterdayBalance
+    const yesterdayTradeRelInUSDT = yesterdayMaxAbsInUSDT + yesterdayInUSDT
+    const yesterdayMinRelInUSDT = yesterdayMaxAbsInUSDT + yesterdayInUSDT
+    const yesterdayMaxRelInUSDT = yesterdayMaxAbsInUSDT + yesterdayInUSDT
+    const yesterdayTradeAbsPct = yesterdayTradeAbs / yesterdayInUSDT
+    const yesterdayMinAbsPct = yesterdayMinAbs / yesterdayInUSDT
+    const yesterdayMaxAbsPct = yesterdayMaxAbs / yesterdayInUSDT
+    const yesterdayMinRelPct = yesterdayMinRel / yesterdayInUSDT
+    const yesterdayMaxRelPct = yesterdayMaxRel / yesterdayInUSDT
+    const yesterdayTradeRelPct = yesterdayTradeRel / yesterdayInUSDT
+
+
     const inUSDT = balance * rates[currency]
-
-    const balanceToday = getBalancesAt(traderData, today, currency)
-    const inUSDTToday = balanceToday * rates[currency]
-    const todayRate = balance / balanceToday || 0
-    const todayDiff = balance - balanceToday
-    const todayDiffInUSDT = todayDiff * rates[currency]
-
-    const balanceYesterday = getBalancesAt(traderData, yesterday, currency)
-    const yesterdayRate = balance / balanceYesterday || 0
-
-    const commissionsInUSDTToday = _(orderHistory)
-      .filter(o => moment(o.timeStamp).isAfter(today))
-      .filter(o => o.exchange.includes(currency))
-      .sumBy(({exchange, commission}) => {
-        const currency = exchange.match(/^\w+/)[0]
-        return rates[currency] * commission
-      })
-
-    const net = inUSDT - inUSDTToday - commissionsInUSDTToday
-
-    const open = _(orderHistory)
-      .reject('closed')
-      .filter(o => o.exchange.includes(currency))
-      .sumBy(({exchange, orderType, price, quantity}) => {
-        const [[currency], amount] = orderType.match(/buy/i)
-          ? [exchange.match(/^\w+/), price]
-          : [exchange.match(/\w+$/), quantity]
-        return rates[currency] * amount
-      })
 
     return {
       currency,
-      startUSDT,
-      balance,
-      inUSDT,
-      USDT,
-      todayRate,
-      todayDiff,
-      todayDiffInUSDT,
-      yesterdayRate,
-      commissionsInUSDTToday,
-      net,
-      open
-    }
-  }).filter(raw =>
-    raw.startUSDT || raw.balance || raw.todayDiff
-  )
 
+      startBalance, startInUSDT,
+
+      startTradeAbs, startMinAbs, startMaxAbs,
+      startTradeAbsInUSDT, startMinAbsInUSDT, startMaxAbsInUSDT,
+      startTradeRel, startMinRel, startMaxRel,
+      startTradeRelInUSDT, startMinRelInUSDT, startMaxRelInUSDT,
+      startTradeAbsPct, startMinAbsPct, startMaxAbsPct,
+      startMinRelPct, startMaxRelPct, startTradeRelPct,
+
+
+      todayBalance, todayInUSDT,
+
+      todayTradeAbs, todayMinAbs, todayMaxAbs,
+      todayTradeAbsInUSDT, todayMinAbsInUSDT, todayMaxAbsInUSDT,
+      todayTradeRel, todayMinRel, todayMaxRel,
+      todayTradeRelInUSDT, todayMinRelInUSDT, todayMaxRelInUSDT,
+      todayTradeAbsPct, todayMinAbsPct, todayMaxAbsPct,
+      todayMinRelPct, todayMaxRelPct, todayTradeRelPct,
+
+
+      yesterdayBalance, yesterdayInUSDT,
+
+      yesterdayTradeAbs, yesterdayMinAbs, yesterdayMaxAbs,
+      yesterdayTradeAbsInUSDT, yesterdayMinAbsInUSDT, yesterdayMaxAbsInUSDT,
+      yesterdayTradeRel, yesterdayMinRel, yesterdayMaxRel,
+      yesterdayTradeRelInUSDT, yesterdayMinRelInUSDT, yesterdayMaxRelInUSDT,
+      yesterdayTradeAbsPct, yesterdayMinAbsPct, yesterdayMaxAbsPct,
+      yesterdayMinRelPct, yesterdayMaxRelPct, yesterdayTradeRelPct,
+      
+
+      balance, inUSDT
+    }
+  }).filter(r => _(r).omit('currency').some(Boolean))
+
+  return cloneDeepWith(table, v => {
+    if (Number.isNaN(v)) return 0
+    if (v == Infinity) return 'up'
+    return v
+  })
 }
 
 function formGeneralTableData (data) {
@@ -119,77 +180,95 @@ function formGeneralTableData (data) {
 
     const traderData = {balances, orderHistory, depositHistory, withdrawalHistory}
 
-    const USDT = find(balances, {currency: 'USDT'}).balance
-    const inUSDT = _(balances)
-      .map(({currency, balance}) => balance * rates[currency]).sum()
-    const positionsInUSDT = inUSDT - USDT
-
     const startInUSDT = _(getBalancesAt(traderData, periodStartDate))
       .map((balance, currency) => rates[currency] * balance).sum()
     const startUSDT = getBalancesAt(traderData, periodStartDate, 'USDT')
     const startPositionsInUSDT = startInUSDT - startUSDT
+
     const [startTradeAbs, startMinAbs, startMaxAbs]
       = getTradeMinMax(orderHistory, {rates, after: periodStartDate})
-    const startMinRel = startInUSDT ? startMinAbs / startInUSDT : 'up'
-    const startMaxRel = startInUSDT ? startMaxAbs / startInUSDT : 'up'
-    const startTradeRel = startInUSDT ? startTradeAbs / startInUSDT : 'up'
+    const startTradeRel = startTradeAbs + startInUSDT
+    const startMinRel = startMinAbs + startInUSDT
+    const startMaxRel = startMaxAbs + startInUSDT
+    const startTradeAbsPct = startTradeAbs / startInUSDT
+    const startMinAbsPct = startMinAbs / startInUSDT
+    const startMaxAbsPct = startMaxAbs / startInUSDT
+    const startMinRelPct = startMinRel / startInUSDT
+    const startMaxRelPct = startMaxRel / startInUSDT
+    const startTradeRelPct = startTradeRel / startInUSDT
 
-    const todayInUSDT = _(getBalancesAt(traderData, today))
-      .map((balance, currency) => rates[currency] * balance).sum()
-    const todayUSDT = getBalancesAt(traderData, today, 'USDT')
-    const todayPositionsInUSDT = todayInUSDT - todayUSDT
-    const [todayTradeAbs, todayMinAbs, todayMaxAbs]
-      = getTradeMinMax(orderHistory, {rates, after: today})
-    const todayMinRel = todayInUSDT ? todayMinAbs / todayInUSDT : 'up'
-    const todayMaxRel = todayInUSDT ? todayMaxAbs / todayInUSDT : 'up'
-    const todayTradeRel = todayInUSDT ? todayTradeAbs / todayInUSDT : 'up'
+
 
     const yesterdayInUSDT = _(getBalancesAt(traderData, yesterday))
       .map((balance, currency) => rates[currency] * balance).sum()
     const yesterdayUSDT = getBalancesAt(traderData, yesterday, 'USDT')
     const yesterdayPositionsInUSDT = yesterdayInUSDT - yesterdayUSDT
+
     const [yesterdayTradeAbs, yesterdayMinAbs, yesterdayMaxAbs]
       = getTradeMinMax(orderHistory, {rates, after: yesterday})
-    const yesterdayMinRel = yesterdayInUSDT ? yesterdayMinAbs / yesterdayInUSDT : 'up'
-    const yesterdayMaxRel = yesterdayInUSDT ? yesterdayMaxAbs / yesterdayInUSDT : 'up'
-    const yesterdayTradeRel = yesterdayInUSDT ? yesterdayTradeAbs / yesterdayInUSDT : 'up'
+    const yesterdayTradeRel = yesterdayTradeAbs + yesterdayInUSDT
+    const yesterdayMinRel = yesterdayMinAbs + yesterdayInUSDT
+    const yesterdayMaxRel = yesterdayMaxAbs + yesterdayInUSDT
+    const yesterdayTradeAbsPct = yesterdayTradeAbs / yesterdayInUSDT
+    const yesterdayMinAbsPct = yesterdayMinAbs / yesterdayInUSDT
+    const yesterdayMaxAbsPct = yesterdayMaxAbs / yesterdayInUSDT
+    const yesterdayMinRelPct = yesterdayMinRel / yesterdayInUSDT
+    const yesterdayMaxRelPct = yesterdayMaxRel / yesterdayInUSDT
+    const yesterdayTradeRelPct = yesterdayTradeRel / yesterdayInUSDT
+
+
+    const todayInUSDT = _(getBalancesAt(traderData, today))
+      .map((balance, currency) => rates[currency] * balance).sum()
+    const todayUSDT = getBalancesAt(traderData, today, 'USDT')
+    const todayPositionsInUSDT = todayInUSDT - todayUSDT
+
+    const [todayTradeAbs, todayMinAbs, todayMaxAbs]
+      = getTradeMinMax(orderHistory, {rates, after: today})
+    const todayTradeRel = todayTradeAbs + todayInUSDT
+    const todayMinRel = todayMinAbs + todayInUSDT
+    const todayMaxRel = todayMaxAbs + todayInUSDT
+    const todayTradeAbsPct = todayTradeAbs / todayInUSDT
+    const todayMinAbsPct = todayMinAbs / todayInUSDT
+    const todayMaxAbsPct = todayMaxAbs / todayInUSDT
+    const todayMinRelPct = todayMinRel / todayInUSDT
+    const todayMaxRelPct = todayMaxRel / todayInUSDT
+    const todayTradeRelPct = todayTradeRel / todayInUSDT
+
+
+    const USDT = find(balances, {currency: 'USDT'}).balance
+    const inUSDT = _(balances)
+      .map(({currency, balance}) => balance * rates[currency]).sum()
+    const positionsInUSDT = inUSDT - USDT
 
     return {
       traderName,
 
-      startInUSDT,
-      startUSDT,
-      startPositionsInUSDT,
-      startTradeAbs,
-      startTradeRel,
-      startMinAbs,
-      startMinRel,
-      startMaxAbs,
-      startMaxRel,
 
-      yesterdayInUSDT,
-      yesterdayUSDT,
-      yesterdayPositionsInUSDT,
-      yesterdayTradeAbs,
-      yesterdayTradeRel,
-      yesterdayMinAbs,
-      yesterdayMinRel,
-      yesterdayMaxAbs,
-      yesterdayMaxRel,
+      startInUSDT, startUSDT, startPositionsInUSDT,
 
-      todayInUSDT,
-      todayUSDT,
-      todayPositionsInUSDT,
-      todayTradeAbs,
-      todayTradeRel,
-      todayMinAbs,
-      todayMinRel,
-      todayMaxAbs,
-      todayMaxRel,
+      startTradeAbs, startTradeAbsPct, startTradeRel,
+      startTradeRelPct, startMinAbs, startMinAbsPct,
+      startMinRel, startMinRelPct, startMaxAbs,
+      startMaxAbsPct, startMaxRel, startMaxRelPct,
 
-      inUSDT,
-      positionsInUSDT,
-      USDT,
+
+      yesterdayInUSDT, yesterdayUSDT, yesterdayPositionsInUSDT,
+
+      yesterdayTradeAbs, yesterdayTradeAbsPct, yesterdayTradeRel,
+      yesterdayTradeRelPct, yesterdayMinAbs, yesterdayMinAbsPct,
+      yesterdayMinRel, yesterdayMinRelPct, yesterdayMaxAbs,
+      yesterdayMaxAbsPct, yesterdayMaxRel, yesterdayMaxRelPct,
+
+
+      todayInUSDT, todayUSDT, todayPositionsInUSDT,
+
+      todayTradeAbsPct, todayTradeAbs, todayTradeRelPct,
+      todayTradeRel, todayMinAbs, todayMinAbsPct,
+      todayMinRel, todayMinRelPct, todayMaxAbs,
+      todayMaxAbsPct, todayMaxRel, todayMaxRelPct,
+
+
+      inUSDT, positionsInUSDT, USDT,
     }
   }).value()
 
@@ -207,26 +286,30 @@ function formGeneralTableData (data) {
     startUSDT: sumBy(table, 'startUSDT'),
     startPositionsInUSDT: sumBy(table, 'startPositionsInUSDT'),
     startTradeAbs: totalStartTradeAbs,
-    startTradeRel: totalStartInUSDT ? totalStartTradeAbs / totalStartInUSDT : 'up',
+    startTradeRel: totalStartTradeAbs / totalStartInUSDT,
 
     yesterdayInUSDT: totalYesterdayInUSDT,
     yesterdayUSDT: sumBy(table, 'yesterdayUSDT'),
     yesterdayPositionsInUSDT: sumBy(table, 'yesterdayPositionsInUSDT'),
     yesterdayTradeAbs: totalYesterdayTradeAbs,
-    yesterdayTradeRel: totalYesterdayInUSDT ? totalYesterdayTradeAbs / totalYesterdayInUSDT : 'up',
+    yesterdayTradeRel: totalYesterdayTradeAbs / totalYesterdayInUSDT,
 
     todayInUSDT: totalTodayInUSDT,
     todayUSDT: sumBy(table, 'todayUSDT'),
     todayPositionsInUSDT: sumBy(table, 'todayPositionsInUSDT'),
     todayTradeAbs: totalTodayTradeAbs,
-    todayTradeRel: totalTodayInUSDT ? totalTodayTradeAbs / totalTodayInUSDT : 'up',
+    todayTradeRel: totalTodayTradeAbs / totalTodayInUSDT,
 
     inUSDT: sumBy(table, 'inUSDT'),
     positionsInUSDT: sumBy(table, 'positionsInUSDT'),
     USDT: sumBy(table, 'USDT'),
   })
 
-  return table
+  return cloneDeepWith(table, v => {
+    if (Number.isNaN(v)) return 0
+    if (v == Infinity) return 'up'
+    return v
+  })
 }
 
 async function getBalances (format) {
