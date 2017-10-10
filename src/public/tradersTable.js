@@ -148,12 +148,13 @@ function updateTradersTable () {
 
 function formTradersTableData (data) {
   const {sumBy, find, cloneDeepWith} = _
-  const {getBalancesAt, getRates, getTrade} = bittrexHelpers
+  const {getBalancesAt, getTrade} = bittrexHelpers
 
-  const rates = getRates(data.marketSummaries)
   const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
   const yesterday = moment(today).subtract(1, 'day')
   const periodStartDate = moment(today).date(1)
+
+  const {rates} = data
 
   const table = _(data.balances).keys().map(traderName => {
     const balances = data.balances[traderName]

@@ -21,7 +21,9 @@ async function getData () {
       }
       setTimeout(() => { // hack to wrapper.display = 'none' to execute in time
         try {
-          fulfill(JSON.parse(xhr.responseText))
+          const data = JSON.parse(xhr.responseText)
+          data.rates = bittrexHelpers.getRates(data.marketSummaries)
+          fulfill(data)
         } catch (e) {
           reject(e)
       }}, 30)

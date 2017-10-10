@@ -139,9 +139,9 @@ function updateCurrencyTable (traderName) {
 }
 
 function formCurrenciesTableData (data, traderName) {
-  const {getBalancesAt, getRates, getTrade} = bittrexHelpers
+  const {getBalancesAt, getTrade} = bittrexHelpers
 
-  const rates = getRates(data.marketSummaries)
+  const {rates} = data
   const balances = data.balances[traderName]
   const orderHistory = data.orderHistory[traderName]
   const withdrawalHistory = data.withdrawalHistory[traderName]
