@@ -11,10 +11,18 @@ function updateOrdersTable (traderName, currency) {
     document.getElementById('orders-table').innerHTML = _.flatMap(pairs, ({
       currencySecond, orders, avgMainBuy, avgMainSell, avgSecondBuy, avgSecondSell
     }) => {
+      const currentRate = data.marketSummaries.find(m =>
+        m.marketName.includes(currency)
+        && m.marketName.includes(currencySecond)
+      ) || {marketName: `${currency}-${currencySecond}`, last: 0}
+      const [mainToSecondRate, secondToMainRate] = currentRate.marketName.startsWith(currency)
+        ? [currentRate.last, 1 / currentRate.last]
+        : [1 / currentRate.last, currentRate.last]
+
       const pairRow = `
       <div class="row row-delimiter">
-        <div class="col-sm-1">
-          ${currency}-${currencySecond}
+        <div class="col">
+          ${currency}-${currencySecond}: ${formatFloat(secondToMainRate)} / ${formatFloat(mainToSecondRate)}
         </div>
         <div class="col">
           Today vag${currency}Buy: ${formatAvg(avgMainBuy)}
