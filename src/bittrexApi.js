@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const {lowerFirst, isArray, mapKeys, mapValues, transform, keys, invokeMap, omit} = _
+const {lowerFirst, isArray, mapKeys, mapValues, transform, keys, omit} = _
 const bb = require('bluebird')
 const bittrexRaw = require('node-bittrex-api')
 

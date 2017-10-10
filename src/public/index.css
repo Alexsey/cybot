@@ -1,0 +1,88 @@
+html, body {
+    background-color: ghostwhite;
+    height: 100%;
+    margin: 0;
+}
+
+.container {
+    padding-top: 11px;
+    width: 90%;
+    max-width: 1800px;
+}
+
+.col {
+    /*margin-left: -1px;*/
+    /*margin-top: -1px;*/
+    text-align: center;
+    vertical-align: middle;
+    background-color: AliceBlue;
+    border: 1px solid black;
+}
+
+.col-sm-1 {
+    /*margin-left: -1px;*/
+    /*margin-top: -1px;*/
+    vertical-align: middle;
+    text-align: center;
+    background-color: AliceBlue;
+    border: 1px solid black;
+}
+
+.multiline-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader {
+    position: absolute;
+    z-index: 1001;
+    border: 16px solid ghostwhite;
+    border-top: 16px solid cadetblue;
+    border-bottom: 16px solid cadetblue;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    margin: auto;
+    top: 0; left: 0; bottom: 0; right: 0;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.row-bottom-delimiter {
+    border-bottom: 3px solid black;
+}
+
+.row-delimiter {
+    border-top: 3px solid black;
+    border-bottom: 3px solid black;
+}
+
+#wrapper {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    left: 0;
+    top: 0;
+    min-height: 100%;
+    padding: 50px;
+    background-color: black;
+    opacity: 0.2;
+}
+
+.table-header {
+    display: flex;
+    justify-content: center;
+    font-size: 22px;
+    margin-top: 8px;
+}
+
+.cell-button {
+    cursor: pointer;
+    color: blue;
+}
