@@ -5,8 +5,10 @@ require('util').inspect.styles.number = 'cyan'
 const _ = require('lodash') || false
 const bb = require('bluebird')
 const app = new (require('koa')) || false
+const auth = require('koa-basic-auth') || false
 const router = new (require('koa-router'))
 
+const {statCredentials} = require('../config')
 const {all: bittrex} = require('./bittrexApi')
 
 router.get('/data', async ctx => {
@@ -19,6 +21,20 @@ router.get('/data', async ctx => {
   })
 })
 
+app.use(async (ctx, next) => {
+  try {
+    await next()
+  } catch (e) {
+    if (e.status == 401) {
+      ctx.status = 401;
+      ctx.set('WWW-Authenticate', 'Basic')
+      ctx.body = 'cant haz that'
+    } else {
+      throw e
+    }
+  }
+})
+app.use(auth(statCredentials))
 app.use(router.routes())
 app.use(require('koa-static')('src/public'))
 

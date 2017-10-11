@@ -2,6 +2,11 @@
 
 const _ = require('lodash')
 
+exports.statCredentials = {
+  name: 'Overseer',
+  pass: 'showmethestats!'
+}
+
 exports.poloniex = _.merge({
   url: {
     'wamp': 'wss://api2.poloniex.com',
