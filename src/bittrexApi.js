@@ -7,7 +7,7 @@ const bittrexRaw = require('node-bittrex-api')
 
 const config = require('../config')
 
-const apis = transform(config.bittrix.credentials, (api, {name, key, secrets}) => {
+const apis = transform(config.bittrex.credentials, (api, {name, key, secrets}) => {
   const secret = secrets.market || secrets.limit || secrets.withdraw || secrets.read
   api[name] = mapValues({
       // public

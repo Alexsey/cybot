@@ -8,7 +8,7 @@ const app = new (require('koa')) || false
 const auth = require('koa-basic-auth') || false
 const router = new (require('koa-router'))
 
-const {statCredentials} = require('../config')
+const {statCredentials, bittrex: {port}} = require('../config')
 const {all: bittrex} = require('./bittrexApi')
 
 router.get('/data', async ctx => {
@@ -38,7 +38,7 @@ app.use(auth(statCredentials))
 app.use(router.routes())
 app.use(require('koa-static')('src/public'))
 
-app.listen(80, () => console.log('Server started on 80'))
+app.listen(port, () => console.log(`Server started on ${port}`))
 
 process.on('unhandledRejection', (reason, error) => {
   console.error(reason)

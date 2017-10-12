@@ -16,8 +16,9 @@ exports.poloniex = _.merge({
   cpsLimit: 6
 }, require('./privatePoloniex'))
 
-exports.bittrix = _.merge({
-  url: 'https://bittrex.com/api/1.1/'
-}, require('./privateBittrix'))
+exports.bittrex = _.merge({
+  url: 'https://bittrex.com/api/1.1/',
+  port: process.env.PORT || 3000,
+}, require('./privateBittrex'))
 
 exports.db = require('./db')
