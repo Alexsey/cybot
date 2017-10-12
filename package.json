@@ -5,7 +5,8 @@
   "description": "",
   "license": "",
   "scripts": {
-    "start": "node src/bittrex.js"
+    "start": "node src/bittrex.js",
+    "deploy": "git push evennode master"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
