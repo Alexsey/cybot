@@ -4,6 +4,9 @@
   "repository": "https://github.com/Alexsey/cybot",
   "description": "",
   "license": "",
+  "scripts": {
+    "start": "node src/bittrex.js"
+  },
   "dependencies": {
     "bluebird": "^3.5.1",
     "koa": "^2.3.0",
