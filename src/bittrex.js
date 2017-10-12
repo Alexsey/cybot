@@ -38,7 +38,7 @@ app.use(auth(statCredentials))
 app.use(router.routes())
 app.use(require('koa-static')('src/public'))
 
-app.listen(3000, () => console.log('Server started on 3000'))
+app.listen(80, () => console.log('Server started on 80'))
 
 process.on('unhandledRejection', (reason, error) => {
   console.error(reason)
