@@ -82,10 +82,10 @@ const bittrexHelpers = (() => {
       return Math.abs(res) < 1e-8 ? 0 : res
     } else {
       const commission = getCommission(orders, {rates})
-      const amount = _(orders).sumBy(({exchange, orderType, price, quantity}) => {
+      const amount = _(orders).sumBy(({exchange, orderType, price, quantity, quantityRemaining}) => {
         const [curA, curB] = exchange.split('-')
         const amountA = price * rates[curA]
-        const amountB = quantity * rates[curB]
+        const amountB = (quantity - quantityRemaining) * rates[curB]
         const isBuyOrder = orderType.match(/buy/i)
         return isBuyOrder ? amountB - amountA : amountA - amountB
       })
@@ -133,10 +133,10 @@ const bittrexHelpers = (() => {
   function openOrdersInUSDT (orders, rates) {
     return _(orders)
       .reject('closed')
-      .sumBy(({exchange, orderType, price, quantity}) => {
+      .sumBy(({exchange, orderType, price, quantity, quantityRemaining}) => {
         const [[currency], amount] = orderType.match(/buy/i)
           ? [exchange.match(/^\w+/), price]
-          : [exchange.match(/\w+$/), quantity]
+          : [exchange.match(/\w+$/), quantity - quantityRemaining]
         return rates[currency] * amount
       })
   }
