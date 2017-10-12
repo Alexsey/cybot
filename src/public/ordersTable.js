@@ -25,16 +25,16 @@ function updateOrdersTable (traderName, currency) {
           ${currency}-${currencySecond}: ${formatFloat(secondToMainRate)} / ${formatFloat(mainToSecondRate)}
         </div>
         <div class="col">
-          Today vag${currency}Buy: ${formatAvg(avgMainBuy)}
+          Today avg${currency}Buy: ${formatAvg(avgMainBuy)}
         </div>
         <div class="col">
-          Today vag${currency}Sell: ${formatAvg(avgMainSell)}
+          Today avg${currency}Sell: ${formatAvg(avgMainSell)}
         </div>
         <div class="col">
-          Today vag${currencySecond}Buy: ${formatAvg(avgSecondBuy)}
+          Today avg${currencySecond}Buy: ${formatAvg(avgSecondBuy)}
         </div>
         <div class="col">
-          Today vag${currencySecond}Buy: ${formatAvg(avgSecondSell)}
+          Today avg${currencySecond}Buy: ${formatAvg(avgSecondSell)}
         </div>
       </div>
       `
@@ -51,7 +51,7 @@ function updateOrdersTable (traderName, currency) {
             ${currency}
           </div>
           <div class="col-sm-1">
-            op
+            Side
           </div>
           <div class="col">
             ${currencySecond}

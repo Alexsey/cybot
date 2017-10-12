@@ -241,6 +241,6 @@ function formTradersTableData (data) {
 
   return cloneDeepWith(table, v => {
     if (Number.isNaN(v)) return 0
-    if (v == Infinity) return 'up'
+    if (v == Infinity || v == -Infinity) return 'up'
   })
 }
