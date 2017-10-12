@@ -34,7 +34,7 @@ function updateOrdersTable (traderName, currency) {
           Today avg${currencySecond}Buy: ${formatAvg(avgSecondBuy)}
         </div>
         <div class="col">
-          Today avg${currencySecond}Buy: ${formatAvg(avgSecondSell)}
+          Today avg${currencySecond}Sell: ${formatAvg(avgSecondSell)}
         </div>
       </div>
       `
