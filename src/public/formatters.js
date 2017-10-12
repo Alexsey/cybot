@@ -34,7 +34,7 @@ function formatFloat (val) {
 
 function formatFloatInt (val) {
   const [int, decimal] = String(val).split('.')
-  return `${formatBigNumber(int)}.${decimal}`
+  return formatBigNumber(int) + decimal ? '.' + decimal : ''
 }
 
 function formatCoin (val) {
