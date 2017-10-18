@@ -5,7 +5,6 @@ let data
 window.onload = async () => {
   data = await getData()
   updateTradersTable()
-  updateCurrencyTable(_.keys(data.balances)[0])
 }
 
 async function getData () {
