@@ -57,7 +57,7 @@ function formatBigNumber (val) {
 }
 
 function formatDatetime (time) {
-  return time ? moment(time).tz('EET').format('D HH:mm:ss') : ''
+  return time ? moment(time).tz('EET').format('D dddd HH:mm:ss') : ''
 }
 
 function formatAvg (val) {
