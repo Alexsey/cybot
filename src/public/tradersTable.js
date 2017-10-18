@@ -7,6 +7,8 @@ function updateTradersTable () {
 
   setTimeout(() => { // hack to wrapper.display = 'none' to execute in time
     const rows = formTradersTableData(data)
+    // Yesterday column is containing today's data. Actually it is a
+    // 00:00 of today, but in UI it is easier to ready as "Yesterday"
     const headersRow = `
       <div class="row row-delimiter">
         <div class="col-sm-1">
@@ -17,9 +19,6 @@ function updateTradersTable () {
         </div>
         <div class="col">
             Yesterday
-        </div>
-        <div class="col">
-            Today
         </div>
         <div class="col">
             Current
@@ -75,29 +74,6 @@ function updateTradersTable () {
             </div>
             <div class="col">
               ${formatUSDT(startTrade)}
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="row">
-            <div class="col">
-              ${formatUSDT(yesterdayInUSDT)}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              ${formatCoinInUSDT(yesterdayPositionsInUSDT)}
-            </div>
-            <div class="col">
-              ${formatUSDT(yesterdayUSDT)}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              ${formatPct(yesterdayTradePct)}
-            </div>
-            <div class="col">
-              ${formatUSDT(yesterdayTrade)}
             </div>
           </div>
         </div>
