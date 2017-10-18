@@ -106,10 +106,10 @@ function updateOrdersTable (traderName, currency) {
 
 function formOrdersTableData (data, traderName, currency) {
   const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
-  const yesterday = moment(today).subtract(1, 'day')
+  const periodStartDate = moment(today).date(config.periodStartDate)
 
   return _(data.orderHistory[traderName])
-    .filter(o => moment(o.timeStamp).isAfter(yesterday))
+    .filter(o => moment(o.timeStamp).isAfter(periodStartDate))
     .filter(o => o.exchange.includes(currency))
     .map(o => {
       const {
