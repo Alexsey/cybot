@@ -7,19 +7,15 @@ function updateCurrencyTable (traderName) {
 
   setTimeout(() => { // hack to wrapper.display = 'none' to execute in time
     const rows = formCurrenciesTableData(data, traderName)
+    // Yesterday column is containing today's data. Actually it is a
+    // 00:00 of today, but in UI it is easier to ready as "Yesterday"
     const headersRow = `
       <div class="row row-delimiter">
         <div class="col-sm-1">
             Currency
         </div>
         <div class="col">
-            Start
-        </div>
-        <div class="col">
             Yesterday
-        </div>
-        <div class="col">
-            Today
         </div>
         <div class="col">
             Current
@@ -55,52 +51,6 @@ function updateCurrencyTable (traderName) {
         <div class="col">
           <div class="row">
             <div class="col">
-              ${formatCoin(startBalance)}
-            </div>
-            <div class="col">
-              ${formatUSDT(startInUSDT)}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              ${formatCoin(startTrade)}
-            </div>
-            <div class="col">
-              ${formatUSDT(startTradeInUSDT)}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              ${formatPct(startTradePct)}
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="row">
-            <div class="col">
-              ${formatCoin(yesterdayBalance)}
-            </div>
-            <div class="col">
-              ${formatUSDT(yesterdayInUSDT)}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              ${formatCoin(yesterdayTrade)}
-            </div>
-            <div class="col">
-              ${formatUSDT(yesterdayTradeInUSDT)}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              ${formatPct(yesterdayTradePct)}
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="row">
-            <div class="col">
               ${formatCoin(todayBalance)}
             </div>
             <div class="col">
@@ -113,11 +63,6 @@ function updateCurrencyTable (traderName) {
             </div>
             <div class="col">
               ${formatUSDT(todayTradeInUSDT)}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              ${formatPct(todayTradePct)}
             </div>
           </div>
         </div>
