@@ -11,8 +11,6 @@ const router = new (require('koa-router'))
 const {statCredentials, bittrex: {port}} = require('../config')
 const {all: bittrex} = require('./bittrexApi')
 
-console.log(`env var PORT is ${process.env.PORT}`)
-
 router.get('/data', async ctx => {
   ctx.body = await bb.props({
     marketSummaries: bittrex.getMarketSummaries(),
