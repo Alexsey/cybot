@@ -8,7 +8,7 @@ function updateOrdersTable (traderName, currency) {
   setTimeout(() => { // hack to wrapper.display = 'none' to execute in time
     const pairs = formOrdersTableData(data, traderName, currency)
 
-    document.getElementById('orders-table').innerHTML = _.flatMap(pairs, ({
+    const rows = _.flatMap(pairs, ({
       currencySecond, orders, avgMainBuy, avgMainSell, avgSecondBuy, avgSecondSell
     }) => {
       const currentRate = data.marketSummaries.find(m =>
@@ -95,6 +95,12 @@ function updateOrdersTable (traderName, currency) {
 
       return pairRow + headersRow + ordersRows
     }).join('\n')
+
+    document.getElementById('orders-table').innerHTML = `
+      <div class="table-header">Orders Table</div>
+      <div><br></div>
+      <div class="container">${rows}</div>
+    `
   }, 30)
 }
 

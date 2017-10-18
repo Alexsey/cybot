@@ -79,7 +79,11 @@ function updateCurrencyTable (traderName) {
       </div>
     `
     }).join('\n')
-    document.getElementById('currencies-table').innerHTML = headersRow + dataRows
+    document.getElementById('currencies-table').innerHTML = `
+      <div class="table-header">Currencies Table</div>
+      <div><br></div>
+      <div class="container">${headersRow}${dataRows}</div>
+    `
   }, 30)
 }
 

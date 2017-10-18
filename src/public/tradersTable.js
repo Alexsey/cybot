@@ -118,7 +118,11 @@ function updateTradersTable () {
       </div>
   `
     }).join('\n')
-    document.getElementById('traders-table').innerHTML = headersRow + dataRows
+    document.getElementById('traders-table').innerHTML = `
+      <div class="table-header">Traders Table</div>
+      <div><br></div>
+      <div class="container">${headersRow}${dataRows}</div>
+    `
   }, 30)
 }
 
