@@ -25,14 +25,8 @@ function updateCurrencyTable (traderName) {
     const dataRows = rows.map(({
       currency,
 
-      startBalance, startInUSDT,
-      startTrade, startTradeInUSDT, startTradePct,
-
       todayBalance, todayInUSDT,
-      todayTrade, todayTradeInUSDT, todayTradePct,
-
-      yesterdayBalance, yesterdayInUSDT,
-      yesterdayTrade, yesterdayTradeInUSDT, yesterdayTradePct,
+      todayTrade, todayTradeInUSDT,
 
       balance, inUSDT, lastOrderDate
      }, i
@@ -96,29 +90,14 @@ function formCurrenciesTableData (data, traderName) {
   const withdrawalHistory = data.withdrawalHistory[traderName]
   const depositHistory = data.depositHistory[traderName]
   const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
-  const yesterday = moment(today).subtract(1, 'day')
-  const periodStartDate = moment(today).date(config.periodStartDate)
   const traderData = {balances, orderHistory, withdrawalHistory, depositHistory}
 
   const table = balances.map(({balance, currency}) => {
-    const startBalance = getBalancesAt(traderData, periodStartDate, currency)
-    const startInUSDT = startBalance * rates[currency]
-    const startTrade = getTrade(orderHistory, {currency, after: periodStartDate})
-    const startTradeInUSDT = startTrade * rates[currency]
-    const startTradePct = startTradeInUSDT / startInUSDT
-
     const todayBalance = getBalancesAt(traderData, today, currency)
     const todayInUSDT = todayBalance * rates[currency]
     const todayTrade = getTrade(orderHistory, {currency, after: today})
     const todayTradeInUSDT = todayTrade * rates[currency]
-    const todayTradePct = todayTradeInUSDT / todayInUSDT
 
-    const yesterdayBalance = getBalancesAt(traderData, yesterday, currency)
-    const yesterdayInUSDT = yesterdayBalance * rates[currency]
-    const yesterdayTrade = getTrade(orderHistory, {currency, after: yesterday})
-    const yesterdayTradeInUSDT = yesterdayTrade * rates[currency]
-    const yesterdayTradePct = yesterdayTradeInUSDT / yesterdayInUSDT
-    
     const inUSDT = balance * rates[currency]
     const lastOrder = orderHistory.find(o => o.exchange.includes(currency))
     const lastOrderDate = lastOrder && lastOrder.timeStamp
@@ -126,14 +105,8 @@ function formCurrenciesTableData (data, traderName) {
     return {
       currency,
 
-      startBalance, startInUSDT,
-      startTrade, startTradeInUSDT, startTradePct,
-
       todayBalance, todayInUSDT,
-      todayTrade, todayTradeInUSDT, todayTradePct,
-
-      yesterdayBalance, yesterdayInUSDT,
-      yesterdayTrade, yesterdayTradeInUSDT, yesterdayTradePct,
+      todayTrade, todayTradeInUSDT,
 
       balance, inUSDT, lastOrderDate
     }

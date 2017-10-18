@@ -31,9 +31,6 @@ function updateTradersTable () {
         startInUSDT, startUSDT, startPositionsInUSDT,
         startTrade, startTradePct,
 
-        yesterdayInUSDT, yesterdayUSDT, yesterdayPositionsInUSDT,
-        yesterdayTrade, yesterdayTradePct,
-
         todayInUSDT, todayUSDT, todayPositionsInUSDT,
         todayTrade, todayTradePct,
 
@@ -151,13 +148,6 @@ function formTradersTableData (data) {
     const startTrade = getTrade(orderHistory, {rates, after: periodStartDate})
     const startTradePct = startTrade / startInUSDT
 
-    const yesterdayInUSDT = _(getBalancesAt(traderData, yesterday))
-      .map((balance, currency) => rates[currency] * balance).sum()
-    const yesterdayUSDT = getBalancesAt(traderData, yesterday, 'USDT')
-    const yesterdayPositionsInUSDT = yesterdayInUSDT - yesterdayUSDT
-    const yesterdayTrade = getTrade(orderHistory, {rates, after: yesterday})
-    const yesterdayTradePct = yesterdayTrade / yesterdayInUSDT
-
     const todayInUSDT = _(getBalancesAt(traderData, today))
       .map((balance, currency) => rates[currency] * balance).sum()
     const todayUSDT = getBalancesAt(traderData, today, 'USDT')
@@ -175,9 +165,6 @@ function formTradersTableData (data) {
 
       startInUSDT, startUSDT, startPositionsInUSDT,
       startTrade, startTradePct,
-
-      yesterdayInUSDT, yesterdayUSDT, yesterdayPositionsInUSDT,
-      yesterdayTrade, yesterdayTradePct,
 
       todayInUSDT, todayUSDT, todayPositionsInUSDT,
       todayTradePct, todayTrade,
