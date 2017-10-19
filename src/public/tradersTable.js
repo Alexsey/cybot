@@ -88,14 +88,6 @@ function updateTradersTable () {
               ${formatUSDT(todayUSDT)}
             </div>
           </div>
-          <div class="row">
-            <div class="col">
-              ${formatPct(todayTradePct)}
-            </div>
-            <div class="col">
-              ${formatUSDT(todayTrade)}
-            </div>
-          </div>
         </div>
         <div class="col">
           <div class="row">
@@ -111,6 +103,14 @@ function updateTradersTable () {
                 ${formatUSDT(USDT)}
               </div>
             </div>
+            <div class="row">
+            <div class="col">
+              ${formatPct(todayTradePct)}
+            </div>
+            <div class="col">
+              ${formatUSDT(todayTrade)}
+            </div>
+          </div>
         </div>
       </div>
   `
