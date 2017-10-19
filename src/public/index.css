@@ -6,6 +6,7 @@ html, body {
 
 .container {
     padding-top: 11px;
+    padding-bottom: 11px;
     width: 90%;
     max-width: 1800px;
 }
