@@ -29,7 +29,7 @@ function updateCurrencyTable (traderName) {
       todayTrade, todayTradeInUSDT,
 
       balance, inUSDT, lastOrderDate
-     }, i
+     }
     ) => {
       const yesterday = moment().tz('EET').hours(0).minutes(0).seconds(0).subtract(1, 'day')
       const cellButton = lastOrderDate && moment(lastOrderDate).isAfter(yesterday)
