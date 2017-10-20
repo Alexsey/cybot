@@ -1,9 +1,8 @@
 'use strict'
 
 function updateTradersTable () {
-  document.getElementById('traders-table').innerHTML = `
-    <div class="loader"></div>
-  `
+  document.getElementById('traders-table').innerHTML = ''
+  loader.buildingTable()
 
   setTimeout(() => { // hack to wrapper.display = 'none' to execute in time
     const rows = formTradersTableData(data)
@@ -120,6 +119,7 @@ function updateTradersTable () {
       <div><br></div>
       <div class="container">${headersRow}${dataRows}</div>
     `
+    loader.disable()
   }, 30)
 }
 

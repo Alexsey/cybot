@@ -1,9 +1,8 @@
 'use strict'
 
 function updateOrdersTable (traderName, currency) {
-  document.getElementById('orders-table').innerHTML = `
-    <div class="loader"></div>
-  `
+  document.getElementById('orders-table').innerHTML = ''
+  loader.buildingTable()
 
   setTimeout(() => { // hack to wrapper.display = 'none' to execute in time
     const pairs = formOrdersTableData(data, traderName, currency)
@@ -101,6 +100,7 @@ function updateOrdersTable (traderName, currency) {
       <div><br></div>
       <div class="container">${rows}</div>
     `
+    loader.disable()
   }, 30)
 }
 

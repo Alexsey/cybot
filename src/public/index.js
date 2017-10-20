@@ -8,13 +8,13 @@ window.onload = async () => {
 }
 
 async function getData () {
-  document.getElementById('wrapper').style.display = 'block'
+  loader.dataLoading()
   const dataUrl = '/data'
   return new Promise(async (fulfill, reject) => {
     const xhr = new XMLHttpRequest()
     xhr.open('GET', dataUrl)
     xhr.onloadend = () => {
-      document.getElementById('wrapper').style.display = 'none'
+      loader.disable()
       if (xhr.status == 404) {
         return reject(`data url "${dataUrl}" is broken`)
       }
