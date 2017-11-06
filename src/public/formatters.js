@@ -23,7 +23,7 @@ function formatFloat (val) {
         ? `${decimalMeaningful[0]}.${decimalMeaningful.slice(1, 8)}e-${leadingZerosLength + 1}`
         : `${decimalMeaningful}e-${leadingZerosLength}`
     } else {
-      return `0.${decimal.slice(0, 9)}`
+      return (val < 0 ? '-' : '') + `0.${decimal.slice(0, 9)}`
     }
   }
   const decimalToShow = decimal.slice(0, Math.max(0, 8 - int.length)).replace(/0*$/, '')
