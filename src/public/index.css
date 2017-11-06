@@ -69,6 +69,14 @@ html, body {
     border-bottom: 3px solid black;
 }
 
+.row-sell {
+    color: brown;
+}
+
+.row-buy {
+    color: forestgreen;
+}
+
 #wrapper {
     position: fixed;
     width: 100%;

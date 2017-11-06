@@ -67,7 +67,7 @@ function updateOrdersTable (traderName, currency) {
       const ordersRows = orders.map(({
         opened, closed, amountMain, operation, amountSecond, ppuMain, ppuSecond
       }) => `
-        <div class="row">
+        <div class="row row-${operation}">
           <div class="col">
             ${formatDatetime(opened)}
           </div>
