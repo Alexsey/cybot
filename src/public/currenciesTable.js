@@ -30,7 +30,10 @@ function updateCurrencyTable (traderName) {
       balance, inUSDT, lastOrderDate
      }
     ) => {
-      const periodStartDate = moment().tz('EET').date(config.periodStartDate).hours(0).minutes(0).seconds(0)
+      const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
+      const periodStartDate = today.date() >= config.periodStartDate
+        ? moment(today).date(config.periodStartDate)
+        : moment(today).subtract(1, 'month').date(config.periodStartDate)
       const cellButton = lastOrderDate && moment(lastOrderDate).isAfter(periodStartDate)
         ? `class="cell-button" onClick="updateOrdersTable('${traderName}', '${currency}')"`
         : ''

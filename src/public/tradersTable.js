@@ -128,7 +128,9 @@ function formTradersTableData (data) {
   const {getBalancesAt, getTrade} = bittrexHelpers
 
   const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
-  const periodStartDate = moment(today).date(config.periodStartDate)
+  const periodStartDate = today.date() >= config.periodStartDate
+    ? moment(today).date(config.periodStartDate)
+    : moment(today).subtract(1, 'month').date(config.periodStartDate)
 
   const {rates} = data
 
