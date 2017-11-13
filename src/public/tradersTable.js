@@ -1,129 +1,129 @@
 'use strict'
 
-function updateTradersTable () {
+async function updateTradersTable () {
   document.getElementById('traders-table').innerHTML = ''
+
   loader.buildingTable()
+  await new Promise(fulfill => setTimeout(fulfill, 30)) // hack to loader.buildingTable() to execute
 
-  setTimeout(() => { // hack to wrapper.display = 'none' to execute in time
-    const rows = formTradersTableData(data)
-    // Yesterday column is containing today's data. Actually it is a
-    // 00:00 of today, but in UI it is easier to ready as "Yesterday"
-    const headersRow = `
-      <div class="row row-delimiter">
-        <div class="col-sm-1">
-            Trader Name
-        </div>
-        <div class="col">
-            Start
-        </div>
-        <div class="col">
-            Yesterday
-        </div>
-        <div class="col">
-            Current
-        </div>
+  const rows = formTradersTableData(data.traders, data.rates)
+  // Yesterday column is containing today's data. Actually it is a
+  // 00:00 of today, but in UI it is easier to ready as "Yesterday"
+  const headersRow = `
+    <div class="row row-delimiter">
+      <div class="col-sm-1">
+          Trader Name
       </div>
-    `
-    const dataRows = rows.map(({
-        traderName,
-
-        startInUSDT, startUSDT, startPositionsInUSDT,
-        startTrade, startTradePct,
-
-        todayInUSDT, todayUSDT, todayPositionsInUSDT,
-        todayTrade, todayTradePct,
-
-        inUSDT, positionsInUSDT, USDT,
-     }, i
-    ) => {
-      // IDE can't highlight it properly if put cellButton inside template
-      const cellButton = i == rows.length - 1
-        ? ''
-        : `class="cell-button" onClick="(() => {
-            updateCurrencyTable('${traderName}');
-            hideOrdersTable();
-          })()"`
-      return `
-      <div class="row row-bottom-delimiter">
-        <div class="col-sm-1 multiline-col">
-          <div ${cellButton}>
-            ${_.upperFirst(traderName)}
-          </div>
-        </div>
-        <div class="col">
-          <div class="row">
-            <div class="col">
-              ${formatUSDT(startInUSDT)}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              ${formatCoinInUSDT(startPositionsInUSDT)}
-            </div>
-            <div class="col">
-              ${formatUSDT(startUSDT)}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              ${formatPct(startTradePct)}
-            </div>
-            <div class="col">
-              ${formatUSDT(startTrade)}
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="row">
-            <div class="col">
-              ${formatUSDT(todayInUSDT)}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              ${formatCoinInUSDT(todayPositionsInUSDT)}
-            </div>
-            <div class="col">
-              ${formatUSDT(todayUSDT)}
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="row">
-            <div class="col">
-              ${formatUSDT(inUSDT)}
-            </div>
-          </div>
-            <div class="row">
-              <div class="col">
-                ${formatCoinInUSDT(positionsInUSDT)}
-              </div>
-              <div class="col">
-                ${formatUSDT(USDT)}
-              </div>
-            </div>
-            <div class="row">
-            <div class="col">
-              ${formatPct(todayTradePct)}
-            </div>
-            <div class="col">
-              ${formatUSDT(todayTrade)}
-            </div>
-          </div>
-        </div>
+      <div class="col">
+          Start
       </div>
+      <div class="col">
+          Yesterday
+      </div>
+      <div class="col">
+          Current
+      </div>
+    </div>
   `
-    }).join('\n')
-    document.getElementById('traders-table').innerHTML = `
-      <div class="table-header">Traders Table</div>
-      <div><br></div>
-      <div class="container">${headersRow}${dataRows}</div>
-    `
-    loader.disable()
-  }, 30)
+  const dataRows = rows.map(({
+      traderName,
+
+      startInUSDT, startUSDT, startPositionsInUSDT,
+      startTrade, startTradePct,
+
+      todayInUSDT, todayUSDT, todayPositionsInUSDT,
+      todayTrade, todayTradePct,
+
+      inUSDT, positionsInUSDT, USDT,
+   }, i
+  ) => {
+    // IDE can't highlight it properly if put cellButton inside template
+    const cellButton = i == rows.length - 1
+      ? ''
+      : `class="cell-button" onClick="(() => {
+          updateCurrencyTable('${traderName}');
+          hideOrdersTable();
+        })()"`
+    return `
+    <div class="row row-bottom-delimiter">
+      <div class="col-sm-1 multiline-col">
+        <div ${cellButton}>
+          ${_.upperFirst(traderName)}
+        </div>
+      </div>
+      <div class="col">
+        <div class="row">
+          <div class="col">
+            ${formatUSDT(startInUSDT)}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            ${formatCoinInUSDT(startPositionsInUSDT)}
+          </div>
+          <div class="col">
+            ${formatUSDT(startUSDT)}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            ${formatPct(startTradePct)}
+          </div>
+          <div class="col">
+            ${formatUSDT(startTrade)}
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="row">
+          <div class="col">
+            ${formatUSDT(todayInUSDT)}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            ${formatCoinInUSDT(todayPositionsInUSDT)}
+          </div>
+          <div class="col">
+            ${formatUSDT(todayUSDT)}
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="row">
+          <div class="col">
+            ${formatUSDT(inUSDT)}
+          </div>
+        </div>
+          <div class="row">
+            <div class="col">
+              ${formatCoinInUSDT(positionsInUSDT)}
+            </div>
+            <div class="col">
+              ${formatUSDT(USDT)}
+            </div>
+          </div>
+          <div class="row">
+          <div class="col">
+            ${formatPct(todayTradePct)}
+          </div>
+          <div class="col">
+            ${formatUSDT(todayTrade)}
+          </div>
+        </div>
+      </div>
+    </div>
+`
+  }).join('\n')
+  document.getElementById('traders-table').innerHTML = `
+    <div class="table-header">Traders Table</div>
+    <div><br></div>
+    <div class="container">${headersRow}${dataRows}</div>
+  `
+  loader.disable()
 }
 
-function formTradersTableData (data) {
+function formTradersTableData (data, rates) {
   const {sumBy, find, cloneDeepWith} = _
   const {getBalancesAt, getTrade} = bittrexHelpers
 
@@ -131,8 +131,6 @@ function formTradersTableData (data) {
   const periodStartDate = today.date() >= config.periodStartDate
     ? moment(today).date(config.periodStartDate)
     : moment(today).subtract(1, 'month').date(config.periodStartDate)
-
-  const {rates} = data
 
   const table = _(data.balances).keys().map(traderName => {
     const balances = data.balances[traderName]

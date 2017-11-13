@@ -1,9 +1,10 @@
 'use strict'
 
 const _ = require('lodash')
-const {lowerFirst, isArray, mapKeys, mapValues, transform, keys, omit} = _
+const {lowerFirst, isArray, mapKeys, mapValues, transform, keys, omit, find} = _
 const bb = require('bluebird')
 const bittrexRaw = require('node-bittrex-api')
+const pluralize = require('pluralize')
 
 const config = require('../config')
 
@@ -117,16 +118,32 @@ const publicMethods = new Set([
   'getMarketSummary', 'getOrderBook', 'getMarketHistory'
 ])
 
+apis.roles = {}
 const someApi = apis[keys(apis)[0]]
-apis.all = mapValues(someApi, (fn, fnName) =>
-  (...args) =>
-    publicMethods.has(fnName)
-      ? someApi[fnName](...args)
-      : bb.props(mapValues(omit(apis, 'all'), api =>
-        api[fnName](...args)
+
+_(config.bittrex.credentials)
+  .map('roles')
+  .flatten()
+  .uniq()
+  .map()
+  .concat('all')
+  .forEach(role => {
+    let roleApis = omit(apis, 'roles')
+    if (role != 'all') {
+      roleApis = _.pickBy(roleApis, (api, name) =>
+        find(config.bittrex.credentials, {name}).roles.includes(role)
       )
-  )
-)
+      role = pluralize(role)
+    }
+    apis.roles[role] = mapValues(someApi, (fn, fnName) =>
+      (...args) =>
+        publicMethods.has(fnName)
+          ? someApi[fnName](...args)
+          : bb.props(mapValues(roleApis, api =>
+            api[fnName](...args)
+          ))
+    )
+  })
 
 module.exports = apis
 

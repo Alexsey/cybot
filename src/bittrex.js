@@ -3,22 +3,38 @@
 require('util').inspect.defaultOptions.colors = true
 require('util').inspect.styles.number = 'cyan'
 const _ = require('lodash') || false
+const {transform, difference} = _
 const bb = require('bluebird')
 const app = new (require('koa')) || false
 const auth = require('koa-basic-auth') || false
 const router = new (require('koa-router'))
 
 const {statCredentials, bittrex: {port}} = require('../config')
-const {all: bittrex} = require('./bittrexApi')
+const bittrex = require('./bittrexApi')
 
-router.get('/data', async ctx => {
+router.get('/data/:role', async ctx => {
+  const {role} = ctx.params
+  ctx.assert(bittrex.roles[role], 400, `There are no accounts with role "${role}"`)
+  const queryParams = (ctx.query.data || '').split(',')
+  const invalidQueryParams = difference(
+    queryParams, ['markets', 'orders', 'deposits', 'withdrawals', 'balances']
+  )
+  ctx.assert(!invalidQueryParams.length, 400, `invalid query params ${invalidQueryParams.join(', ')}`)
+  const {markets, orders, deposits, withdrawals, balances}
+    = transform(queryParams, (requested, item) => requested[item] = true, {})
+  const all = !(markets || orders || deposits || withdrawals || balances)
   ctx.body = await bb.props({
-    marketSummaries: bittrex.getMarketSummaries(),
-    orderHistory: bittrex.getOrderHistory(),
-    depositHistory: bittrex.getDepositHistory(),
-    withdrawalHistory: bittrex.getWithdrawalHistory(),
-    balances: bittrex.getBalances()
+    ...(all || markets) && {marketSummaries: bittrex.roles[role].getMarketSummaries()},
+    ...(all || orders) && {orderHistory: bittrex.roles[role].getOrderHistory()},
+    ...(all || deposits) && {depositHistory: bittrex.roles[role].getDepositHistory()},
+    ...(all || withdrawals) && {withdrawalHistory: bittrex.roles[role].getWithdrawalHistory()},
+    ...(all || balances) && {balances: bittrex.roles[role].getBalances()}
   })
+})
+
+router.get('/data', ctx => {
+  ctx.status = 307
+  ctx.redirect(`/data/all${ctx.querystring ? `?${ctx.querystring}` : ''}`)
 })
 
 app.use(async (ctx, next) => {
@@ -34,7 +50,7 @@ app.use(async (ctx, next) => {
     }
   }
 })
-app.use(auth(statCredentials))
+// app.use(auth(statCredentials))
 app.use(router.routes())
 app.use(require('koa-static')('src/public'))
 

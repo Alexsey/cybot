@@ -1,107 +1,107 @@
 'use strict'
 
-function updateOrdersTable (traderName, currency) {
+async function updateOrdersTable (traderName, currency) {
   document.getElementById('orders-table').innerHTML = ''
+
   loader.buildingTable()
+  await new Promise(fulfill => setTimeout(fulfill, 30)) // hack to loader.buildingTable() to execute
 
-  setTimeout(() => { // hack to wrapper.display = 'none' to execute in time
-    const pairs = formOrdersTableData(data, traderName, currency)
+  const pairs = formOrdersTableData(data.traders, traderName, currency)
 
-    const rows = _.flatMap(pairs, ({
-      currencySecond, orders, avgMainBuy, avgMainSell, avgSecondBuy, avgSecondSell
-    }) => {
-      const currentRate = data.marketSummaries.find(m =>
-        m.marketName.includes(currency)
-        && m.marketName.includes(currencySecond)
-      ) || {marketName: `${currency}-${currencySecond}`, last: 0}
-      const [mainToSecondRate, secondToMainRate] = currentRate.marketName.startsWith(currency)
-        ? [currentRate.last, 1 / currentRate.last]
-        : [1 / currentRate.last, currentRate.last]
+  const rows = _.flatMap(pairs, ({
+    currencySecond, orders, avgMainBuy, avgMainSell, avgSecondBuy, avgSecondSell
+  }) => {
+    const currentRate = data.marketSummaries.find(m =>
+      m.marketName.includes(currency)
+      && m.marketName.includes(currencySecond)
+    ) || {marketName: `${currency}-${currencySecond}`, last: 0}
+    const [mainToSecondRate, secondToMainRate] = currentRate.marketName.startsWith(currency)
+      ? [currentRate.last, 1 / currentRate.last]
+      : [1 / currentRate.last, currentRate.last]
 
-      const pairRow = `
-      <div class="row row-delimiter">
+    const pairRow = `
+    <div class="row row-delimiter">
+      <div class="col">
+        ${currency}-${currencySecond}: ${formatFloat(secondToMainRate)} / ${formatFloat(mainToSecondRate)}
+      </div>
+      <div class="col">
+        Today avg${currency}Buy: ${formatAvg(avgMainBuy)}
+      </div>
+      <div class="col">
+        Today avg${currency}Sell: ${formatAvg(avgMainSell)}
+      </div>
+      <div class="col">
+        Today avg${currencySecond}Buy: ${formatAvg(avgSecondBuy)}
+      </div>
+      <div class="col">
+        Today avg${currencySecond}Sell: ${formatAvg(avgSecondSell)}
+      </div>
+    </div>
+    `
+
+    const headersRow = `
+      <div class="row row-bottom-delimiter">
         <div class="col">
-          ${currency}-${currencySecond}: ${formatFloat(secondToMainRate)} / ${formatFloat(mainToSecondRate)}
+          Opened
         </div>
         <div class="col">
-          Today avg${currency}Buy: ${formatAvg(avgMainBuy)}
+          Closed
         </div>
         <div class="col">
-          Today avg${currency}Sell: ${formatAvg(avgMainSell)}
+          ${currency}
+        </div>
+        <div class="col-sm-1">
+          Side
         </div>
         <div class="col">
-          Today avg${currencySecond}Buy: ${formatAvg(avgSecondBuy)}
+          ${currencySecond}
         </div>
         <div class="col">
-          Today avg${currencySecond}Sell: ${formatAvg(avgSecondSell)}
+          ${currency}/${currencySecond}
+        </div>
+        <div class="col">
+          ${currencySecond}/${currency}
         </div>
       </div>
-      `
-
-      const headersRow = `
-        <div class="row row-bottom-delimiter">
-          <div class="col">
-            Opened
-          </div>
-          <div class="col">
-            Closed
-          </div>
-          <div class="col">
-            ${currency}
-          </div>
-          <div class="col-sm-1">
-            Side
-          </div>
-          <div class="col">
-            ${currencySecond}
-          </div>
-          <div class="col">
-            ${currency}/${currencySecond}
-          </div>
-          <div class="col">
-            ${currencySecond}/${currency}
-          </div>
-        </div>
-      `
-
-      const ordersRows = orders.map(({
-        opened, closed, amountMain, operation, amountSecond, ppuMain, ppuSecond
-      }) => `
-        <div class="row row-${operation}">
-          <div class="col">
-            ${formatDatetime(opened)}
-          </div>
-          <div class="col">
-            ${formatDatetime(closed)}
-          </div>
-          <div class="col">
-            ${formatFloatInt(amountMain)}
-          </div>
-          <div class="col-sm-1">
-            ${formatOperation(operation)}
-          </div>
-          <div class="col">
-            ${formatFloatInt(amountSecond)}
-          </div>
-          <div class="col">
-            ${formatFloatInt(ppuMain)}
-          </div>
-          <div class="col">
-            ${formatFloatInt(ppuSecond)}
-          </div>
-        </div>      
-      `).join('\n')
-
-      return pairRow + headersRow + ordersRows
-    }).join('\n')
-
-    document.getElementById('orders-table').innerHTML = `
-      <div class="table-header">Orders Table</div>
-      <div><br></div>
-      <div class="container">${rows}</div>
     `
-    loader.disable()
-  }, 30)
+
+    const ordersRows = orders.map(({
+      opened, closed, amountMain, operation, amountSecond, ppuMain, ppuSecond
+    }) => `
+      <div class="row row-${operation}">
+        <div class="col">
+          ${formatDatetime(opened)}
+        </div>
+        <div class="col">
+          ${formatDatetime(closed)}
+        </div>
+        <div class="col">
+          ${formatFloatInt(amountMain)}
+        </div>
+        <div class="col-sm-1">
+          ${formatOperation(operation)}
+        </div>
+        <div class="col">
+          ${formatFloatInt(amountSecond)}
+        </div>
+        <div class="col">
+          ${formatFloatInt(ppuMain)}
+        </div>
+        <div class="col">
+          ${formatFloatInt(ppuSecond)}
+        </div>
+      </div>      
+    `).join('\n')
+
+    return pairRow + headersRow + ordersRows
+  }).join('\n')
+
+  document.getElementById('orders-table').innerHTML = `
+    <div class="table-header">Orders Table</div>
+    <div><br></div>
+    <div class="container">${rows}</div>
+  `
+  loader.disable()
 }
 
 function formOrdersTableData (data, traderName, currency) {
