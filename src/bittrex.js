@@ -7,7 +7,7 @@ const {transform, difference} = _
 const bb = require('bluebird')
 const app = new (require('koa')) || false
 const auth = require('koa-basic-auth') || false
-const router = new (require('koa-router'))
+const router = new (require('koa-router')) || false
 
 const {statCredentials, bittrex: {port}} = require('../config')
 const bittrex = require('./bittrexApi')
