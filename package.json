@@ -6,7 +6,8 @@
   "license": "",
   "scripts": {
     "start": "node src/bittrex.js",
-    "deploy": "git push -f evennode master"
+    "deploy": "git push -f evennode master",
+    "commit": "git commit -am \"auto commit\" && git push && npm run deploy"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
