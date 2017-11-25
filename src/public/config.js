@@ -8,6 +8,6 @@ const config = {
   fakeMiningTable: {
     ETH:   {deposit: 40.091569585868,    withdrawal: 0},
     XMR:   {deposit: 17.892112288329,     withdrawal: 0},
-    MUSIC: {deposit: 102491.64281639, withdrawal: 0},
+    MUSIC: {deposit: 104754.15123035, withdrawal: 0},
   }
 }
