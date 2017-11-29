@@ -39,42 +39,42 @@ async function updateCurrencyTable (traderName) {
       ? `class="cell-button" onClick="updateOrdersTable('${traderName}', '${currency}')"`
       : ''
     return `
-    <div class="row row-bottom-delimiter">
-      <div class="col-sm-1 multiline-col">
-        <div ${cellButton}>
-          ${currency.toUpperCase()}
+      <div class="row row-bottom-delimiter">
+        <div class="col-sm-1 multiline-col">
+          <div ${cellButton}>
+            ${currency.toUpperCase()}
+          </div>
+        </div>
+        <div class="col">
+          <div class="row">
+            <div class="col">
+              ${formatCoin(todayBalance)}
+            </div>
+            <div class="col">
+              ${formatUSDT(todayInUSDT)}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              ${formatCoin(todayTrade)}
+            </div>
+            <div class="col">
+              ${formatUSDT(todayTradeInUSDT)}
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="row">
+            <div class="col">
+              ${formatCoin(balance)}
+            </div>
+            <div class="col">
+              ${formatUSDT(inUSDT)}
+            </div>
+          </div>
         </div>
       </div>
-      <div class="col">
-        <div class="row">
-          <div class="col">
-            ${formatCoin(todayBalance)}
-          </div>
-          <div class="col">
-            ${formatUSDT(todayInUSDT)}
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            ${formatCoin(todayTrade)}
-          </div>
-          <div class="col">
-            ${formatUSDT(todayTradeInUSDT)}
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="row">
-          <div class="col">
-            ${formatCoin(balance)}
-          </div>
-          <div class="col">
-            ${formatUSDT(inUSDT)}
-          </div>
-        </div>
-      </div>
-    </div>
-  `
+    `
   }).join('\n')
   document.getElementById('currencies-table').innerHTML = `
     <div class="table-header">Currencies Table</div>

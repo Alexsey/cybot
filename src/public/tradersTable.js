@@ -45,75 +45,75 @@ async function updateTradersTable () {
           hideOrdersTable();
         })()"`
     return `
-    <div class="row row-bottom-delimiter">
-      <div class="col-sm-1 multiline-col">
-        <div ${cellButton}>
-          ${_.upperFirst(traderName)}
-        </div>
-      </div>
-      <div class="col">
-        <div class="row">
-          <div class="col">
-            ${formatUSDT(startInUSDT)}
+      <div class="row row-bottom-delimiter">
+        <div class="col-sm-1 multiline-col">
+          <div ${cellButton}>
+            ${_.upperFirst(traderName)}
           </div>
         </div>
-        <div class="row">
-          <div class="col">
-            ${formatCoinInUSDT(startPositionsInUSDT)}
-          </div>
-          <div class="col">
-            ${formatUSDT(startUSDT)}
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            ${formatPct(startTradePct)}
-          </div>
-          <div class="col">
-            ${formatUSDT(startTrade)}
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="row">
-          <div class="col">
-            ${formatUSDT(todayInUSDT)}
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            ${formatCoinInUSDT(todayPositionsInUSDT)}
-          </div>
-          <div class="col">
-            ${formatUSDT(todayUSDT)}
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="row">
-          <div class="col">
-            ${formatUSDT(inUSDT)}
-          </div>
-        </div>
+        <div class="col">
           <div class="row">
             <div class="col">
-              ${formatCoinInUSDT(positionsInUSDT)}
-            </div>
-            <div class="col">
-              ${formatUSDT(USDT)}
+              ${formatUSDT(startInUSDT)}
             </div>
           </div>
           <div class="row">
-          <div class="col">
-            ${formatPct(todayTradePct)}
+            <div class="col">
+              ${formatCoinInUSDT(startPositionsInUSDT)}
+            </div>
+            <div class="col">
+              ${formatUSDT(startUSDT)}
+            </div>
           </div>
-          <div class="col">
-            ${formatUSDT(todayTrade)}
+          <div class="row">
+            <div class="col">
+              ${formatPct(startTradePct)}
+            </div>
+            <div class="col">
+              ${formatUSDT(startTrade)}
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="row">
+            <div class="col">
+              ${formatUSDT(todayInUSDT)}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              ${formatCoinInUSDT(todayPositionsInUSDT)}
+            </div>
+            <div class="col">
+              ${formatUSDT(todayUSDT)}
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="row">
+            <div class="col">
+              ${formatUSDT(inUSDT)}
+            </div>
+          </div>
+            <div class="row">
+              <div class="col">
+                ${formatCoinInUSDT(positionsInUSDT)}
+              </div>
+              <div class="col">
+                ${formatUSDT(USDT)}
+              </div>
+            </div>
+            <div class="row">
+            <div class="col">
+              ${formatPct(todayTradePct)}
+            </div>
+            <div class="col">
+              ${formatUSDT(todayTrade)}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-`
+    `
   }).join('\n')
   document.getElementById('traders-table').innerHTML = `
     <div class="table-header">Traders Table</div>
@@ -124,7 +124,7 @@ async function updateTradersTable () {
 }
 
 function formTradersTableData (data, rates) {
-  const {sumBy, find, cloneDeepWith} = _
+  const {sumBy, find} = _
   const {getBalancesAt, getTrade} = bittrexHelpers
 
   const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
