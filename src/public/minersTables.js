@@ -149,7 +149,7 @@ function buildMainersAccountTable (rowsData) {
           Start
       </div>
       <div class="col">
-          Total
+          Current
       </div>
     </div>
   `
