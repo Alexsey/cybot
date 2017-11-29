@@ -94,28 +94,26 @@ function formCurrenciesTableData (data, rates, traderName) {
   const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
   const traderData = {balances, orderHistory, withdrawalHistory, depositHistory}
 
-  const table = balances.map(({balance, currency}) => {
-    const todayBalance = getBalancesAt(traderData, today, currency)
-    const todayInUSDT = todayBalance * rates[currency]
-    const todayTrade = getTrade(orderHistory, {currency, after: today})
-    const todayTradeInUSDT = todayTrade * rates[currency]
+  return balances
+    .map(({balance, currency}) => {
+      const todayBalance = getBalancesAt(traderData, today, currency)
+      const todayInUSDT = todayBalance * rates[currency]
+      const todayTrade = getTrade(orderHistory, {currency, after: today})
+      const todayTradeInUSDT = todayTrade * rates[currency]
 
-    const inUSDT = balance * rates[currency]
-    const lastOrder = orderHistory.find(o => o.exchange.includes(currency))
-    const lastOrderDate = lastOrder && lastOrder.timeStamp
+      const inUSDT = balance * rates[currency]
+      const lastOrder = orderHistory.find(o => o.exchange.includes(currency))
+      const lastOrderDate = lastOrder && lastOrder.timeStamp
 
-    return {
-      currency,
+      return {
+        currency,
 
-      todayBalance, todayInUSDT,
-      todayTrade, todayTradeInUSDT,
+        todayBalance, todayInUSDT,
+        todayTrade, todayTradeInUSDT,
 
-      balance, inUSDT, lastOrderDate
-    }
-  }).filter(r => _(r).omit(['currency', 'lastOrderDate']).some(Boolean))
-
-  return _.cloneDeepWith(table, v => {
-    if (Number.isNaN(v)) return 0
-    if (v == Infinity || v == -Infinity) return 'up'
-  })
+        balance, inUSDT, lastOrderDate
+      }
+    })
+    .filter(r => _(r).omit(['currency', 'lastOrderDate'])
+    .some(Boolean))
 }

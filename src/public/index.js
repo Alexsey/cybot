@@ -4,8 +4,13 @@ let data
 
 window.onload = async () => {
   data = await getData()
-  updateTradersTable()
-  updateMinersTable()
+  // async long loading tables
+  await Promise.all([
+    updateTradersTable(),
+    updateMinersTable()
+  ])
+  // fast loading tables
+  updateMainAccountTable()
 }
 
 async function getData () {

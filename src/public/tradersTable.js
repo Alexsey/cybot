@@ -205,8 +205,5 @@ function formTradersTableData (data, rates) {
     USDT: sumBy(table, 'USDT'),
   })
 
-  return cloneDeepWith(table, v => {
-    if (Number.isNaN(v)) return 0
-    if (v == Infinity || v == -Infinity) return 'up'
-  })
+  return table
 }

@@ -1,6 +1,6 @@
 'use strict'
 
-async function updateMinersTable () {
+async function updateMainAccountTable () {
   const headersRow = `
     <div class="row row-delimiter">
       <div class="col">

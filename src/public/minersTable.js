@@ -1,14 +1,13 @@
 'use strict'
 
 async function updateMinersTable () {
-  const {keys, sumBy} = _
   document.getElementById('miners-table').innerHTML = ''
   document.getElementById('miners-account-table').innerHTML = ''
 
   loader.buildingTable()
   await new Promise(fulfill => setTimeout(fulfill, 30)) // hack to loader.buildingTable() to execute
 
-  const minerName = keys(data.miners.depositHistory)[0]
+  const minerName = _.keys(data.miners.depositHistory)[0]
   const depositHistory = data.miners.depositHistory[minerName]
   const withdrawalHistory = data.miners.withdrawalHistory[minerName]
   const rowsData = config.minersTable.useFakeData
@@ -125,13 +124,13 @@ function buildMinersTable (rowsData) {
           Total
       </div>
       <div class="col">
-          ${formatUSDT(sumBy(rowsData, 'depositUSDT'))}
+          ${formatUSDT(_.sumBy(rowsData, 'depositUSDT'))}
       </div>
       <div class="col">
-          ${formatUSDT(sumBy(rowsData, 'withdrawalUSDT'))}
+          ${formatUSDT(_.sumBy(rowsData, 'withdrawalUSDT'))}
       </div>
       <div class="col">
-          ${formatUSDT(sumBy(rowsData, 'totalUSDT'))}
+          ${formatUSDT(_.sumBy(rowsData, 'totalUSDT'))}
       </div>
     </div>
   `
@@ -158,7 +157,7 @@ function buildMainersAccountTable (rowsData) {
   const dataRow = `
     <div class="row row-bottom-delimiter">
       <div class="col">
-          ${formatUSDT(sumBy(rowsData, 'totalUSDT'))}
+          ${formatUSDT(_.sumBy(rowsData, 'totalUSDT'))}
       </div>
       <div class="col">
           ${formatUSDT(config.minersAccountTable.total)}

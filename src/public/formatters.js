@@ -46,7 +46,10 @@ function formatCoinInUSDT (val) {
 }
 
 function formatPct (val) {
-  return val == 'up' ? val : `% ${round(val * 100, 2)}`
+  if (val == Infinity || val == -Infinity)
+    return 'up'
+  if (Number.isNaN(val)) val = 0
+  return `% ${round(val * 100, 2)}`
 }
 
 // 12345678 => 12 345 678
