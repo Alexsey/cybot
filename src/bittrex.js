@@ -50,7 +50,7 @@ app.use(async (ctx, next) => {
     }
   }
 })
-app.use(auth(statCredentials))
+// app.use(auth(statCredentials))
 app.use(router.routes())
 app.use(require('koa-static')('src/public'))
 

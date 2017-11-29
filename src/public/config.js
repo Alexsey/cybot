@@ -11,5 +11,13 @@ const config = {
       XMR:   {deposit: 17.892112288329, withdrawal: 0},
       MUSIC: {deposit: 113250.23108865, withdrawal: 0},
     }
+  },
+  minersAccountTable: {
+    total: 1000
+  },
+  mainAccountTable: {
+    start: 5000,
+    yesterday: 7567,
+    current: 7943
   }
 }

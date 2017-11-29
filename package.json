@@ -18,7 +18,7 @@
     "lodash": "^4.17.4",
     "moment": "^2.19.3",
     "moment-timezone": "^0.5.14",
-    "node-bittrex-api": "^0.8.1",
+    "node-bittrex-api": "0.7.5",
     "pluralize": "^7.0.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",

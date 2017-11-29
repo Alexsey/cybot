@@ -3,6 +3,7 @@
 async function updateMinersTable () {
   const {keys, sumBy} = _
   document.getElementById('miners-table').innerHTML = ''
+  document.getElementById('miners-account-table').innerHTML = ''
 
   loader.buildingTable()
   await new Promise(fulfill => setTimeout(fulfill, 30)) // hack to loader.buildingTable() to execute
@@ -14,6 +15,52 @@ async function updateMinersTable () {
     ? formMinersTableDataFake(data.rates)
     : formMinersTableData(depositHistory, withdrawalHistory, data.rates)
 
+  document.getElementById('miners-table').innerHTML = buildMinersTable(rowsData)
+  document.getElementById('miners-account-table').innerHTML = buildMainersAccountTable(rowsData)
+
+  loader.disable()
+}
+
+function formMinersTableData (deposits, withdrawals, rates) {
+  const {getDeposit, getWithdrawal, getIO} = bittrexHelpers
+  return config.minersTable.currencies.map(currency => {
+    const deposit = getDeposit(deposits, {currency})
+    const depositUSDT = rates[currency] * deposit
+    const withdrawal = getWithdrawal(withdrawals, {currency})
+    const withdrawalUSDT = rates[currency] * withdrawal
+    const total = getIO(deposits, withdrawals, {currency})
+    const totalUSDT = rates[currency] * total
+    return {
+      currency,
+      deposit,
+      depositUSDT,
+      withdrawal,
+      withdrawalUSDT,
+      total,
+      totalUSDT
+    }
+  })
+}
+
+function formMinersTableDataFake (rates) {
+  return _.map(config.minersTable.fakeData, ({deposit, withdrawal}, currency) => {
+    const depositUSDT = rates[currency] * deposit
+    const withdrawalUSDT = rates[currency] * withdrawal
+    const total = deposit - (1 + config.bittrexCommission) * withdrawal
+    const totalUSDT = rates[currency] * total
+    return {
+      currency,
+      deposit,
+      depositUSDT,
+      withdrawal,
+      withdrawalUSDT,
+      total,
+      totalUSDT
+    }
+  })
+}
+
+function buildMinersTable (rowsData) {
   const headersRow = `
     <div class="row row-delimiter">
       <div class="col-sm-1">
@@ -89,50 +136,39 @@ async function updateMinersTable () {
     </div>
   `
 
-  document.getElementById('miners-table').innerHTML = `
+  return `
     <div class="table-header">Miners Table</div>
     <div><br></div>
     <div class="container">${headersRow}${currencyRows}${totalsRow}</div>
   `
-
-  loader.disable()
 }
 
-function formMinersTableData (deposits, withdrawals, rates) {
-  const {getDeposit, getWithdrawal, getIO} = bittrexHelpers
-  return config.minersTable.currencies.map(currency => {
-    const deposit = getDeposit(deposits, {currency})
-    const depositUSDT = rates[currency] * deposit
-    const withdrawal = getWithdrawal(withdrawals, {currency})
-    const withdrawalUSDT = rates[currency] * withdrawal
-    const total = getIO(deposits, withdrawals, {currency})
-    const totalUSDT = rates[currency] * total
-    return {
-      currency,
-      deposit,
-      depositUSDT,
-      withdrawal,
-      withdrawalUSDT,
-      total,
-      totalUSDT
-    }
-  })
-}
+function buildMainersAccountTable (rowsData) {
+  const headersRow = `
+    <div class="row row-delimiter">
+      <div class="col">
+          Start
+      </div>
+      <div class="col">
+          Total
+      </div>
+    </div>
+  `
 
-function formMinersTableDataFake (rates) {
-  return _.map(config.minersTable.fakeData, ({deposit, withdrawal}, currency) => {
-    const depositUSDT = rates[currency] * deposit
-    const withdrawalUSDT = rates[currency] * withdrawal
-    const total = deposit - (1 + config.bittrexCommission) * withdrawal
-    const totalUSDT = rates[currency] * total
-    return {
-      currency,
-      deposit,
-      depositUSDT,
-      withdrawal,
-      withdrawalUSDT,
-      total,
-      totalUSDT
-    }
-  })
+  const dataRow = `
+    <div class="row row-bottom-delimiter">
+      <div class="col">
+          ${formatUSDT(sumBy(rowsData, 'totalUSDT'))}
+      </div>
+      <div class="col">
+          ${formatUSDT(config.minersAccountTable.total)}
+      </div>
+    </div>
+  `
+
+  return `
+    <div class="table-header">Miners Account</div>
+    <div><br></div>
+    <div class="container">${headersRow}${dataRow}</div>
+  `
 }
