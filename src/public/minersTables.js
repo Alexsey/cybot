@@ -1,6 +1,6 @@
 'use strict'
 
-async function updateMinersTable () {
+async function updateMinersTables () {
   document.getElementById('miners-table').innerHTML = ''
   document.getElementById('miners-account-table').innerHTML = ''
 

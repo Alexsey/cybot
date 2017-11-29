@@ -7,7 +7,7 @@ window.onload = async () => {
   // async long loading tables
   await Promise.all([
     updateTradersTable(),
-    updateMinersTable()
+    updateMinersTables()
   ])
   // fast loading tables
   updateMainAccountTable()
