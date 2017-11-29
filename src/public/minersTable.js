@@ -10,7 +10,7 @@ async function updateMinersTable () {
   const minerName = keys(data.miners.depositHistory)[0]
   const depositHistory = data.miners.depositHistory[minerName]
   const withdrawalHistory = data.miners.withdrawalHistory[minerName]
-  const rowsData = config.useFakeMiners
+  const rowsData = config.minersTable.useFakeData
     ? formMinersTableDataFake(data.rates)
     : formMinersTableData(depositHistory, withdrawalHistory, data.rates)
 
@@ -100,7 +100,7 @@ async function updateMinersTable () {
 
 function formMinersTableData (deposits, withdrawals, rates) {
   const {getDeposit, getWithdrawal, getIO} = bittrexHelpers
-  return config.miningCurrencies.map(currency => {
+  return config.minersTable.currencies.map(currency => {
     const deposit = getDeposit(deposits, {currency})
     const depositUSDT = rates[currency] * deposit
     const withdrawal = getWithdrawal(withdrawals, {currency})
@@ -120,7 +120,7 @@ function formMinersTableData (deposits, withdrawals, rates) {
 }
 
 function formMinersTableDataFake (rates) {
-  return _.map(config.fakeMiningTable, ({deposit, withdrawal}, currency) => {
+  return _.map(config.minersTable.fakeData, ({deposit, withdrawal}, currency) => {
     const depositUSDT = rates[currency] * deposit
     const withdrawalUSDT = rates[currency] * withdrawal
     const total = deposit - (1 + config.bittrexCommission) * withdrawal
