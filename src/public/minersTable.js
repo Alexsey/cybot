@@ -135,5 +135,4 @@ function formMinersTableDataFake (rates) {
       totalUSDT
     }
   })
-
 }
