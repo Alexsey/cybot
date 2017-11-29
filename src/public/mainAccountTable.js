@@ -58,7 +58,7 @@ async function updateMinersTable () {
   `
 
   document.getElementById('main-account-table').innerHTML = `
-    <div class="table-header">Miners Account</div>
+    <div class="table-header">Main Account</div>
     <div><br></div>
     <div class="container">${headersRow}${dataRow}</div>
   `
