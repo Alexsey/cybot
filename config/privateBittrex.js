@@ -8,8 +8,7 @@ exports.credentials = [
   secrets: {
     read: '2eb4851ece48418eb093ebcd862e0182'
   }
-},
-{
+}, {
   name: 'Stanislav',
   roles: ['trader'],
   key: 'edaf40a54f1e465eaeab91ede87b6c9c',
