@@ -6,21 +6,23 @@
  io = deposit - withdrawal - txCost
 */
 
-// const _ = require('lodash')
-// const moment = require('moment-timezone')
-
 const {
   keys, mapValues, sumBy, transform, find, flatMap, remove, reject
 } = _
 
 const bittrexHelpers = (() => {
-// module.exports = (() => {
-  function getBalancesAt (data, at, currency) {
+  function getBalancesAt (traderData, at, currency) {
     return currency
-      ? getBalanceOfTrader(data, at, currency)
-      : transform(data.balances, (acc, {currency}) => {
-        acc[currency] = getBalanceOfTrader(data, at, currency)
-      }, {})
+      ? getBalanceOfTrader(traderData, at, currency)
+      : _(traderData.balances)
+        .transform((acc, {currency}) => {
+          acc[currency] = getBalanceOfTrader(traderData, at, currency)
+        }, {})
+        .tap(balances => {
+          balances.total = _(balances)
+            .map((balance, currency) => data.rates[currency] * balance).sum()
+        })
+        .value()
   }
 
   function getAllBalancesAt (data, at, currency) {
@@ -70,9 +72,10 @@ const bittrexHelpers = (() => {
     return rates
   }
 
-  function getTrade (orders, {currency, rates, after}) {
+  function getTrade (orders, {currency, rates, after, before}) {
     if (!currency && !rates) throw Error('Need currency or rates')
     if (after) orders = orders.filter(o => moment(o.timeStamp).isAfter(after))
+    if (before) orders = orders.filter(o => moment(o.timeStamp).isBefore(before))
     if (currency) {
       const commission = getCommission(orders, {currency})
       const [buyOrders, sellOrders] = getBuySellOrders(orders, currency)

@@ -45,7 +45,8 @@ async function getData () {
   )
 
   loader.disable()
-  await new Promise(fulfill => setTimeout(fulfill, 30)) // hack to loader.display() to execute
+  // hack to loader.display() to execute
+  await new Promise(fulfill => setTimeout(fulfill, 30))
 
   return data
 }
