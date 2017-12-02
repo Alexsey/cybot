@@ -21,12 +21,13 @@ const config = {
     }
   },
   minersTable: {
-    currencies: ['ETH', 'XMR', 'MUSIC'],
+    currencies: ['ETH', 'XMR', 'MUSIC', 'ZEC'],
     useFakeData: true,
     fakeData: {
       ETH:   {deposit: 42.854823715868, withdrawal: 0},
       XMR:   {deposit: 17.892112288329, withdrawal: 0},
       MUSIC: {deposit: 119529.03493901, withdrawal: 0},
+      ZEC:   {deposit: 1000.1234567891, withdrawal: 0},
     }
   },
   minersAccountTable: {
