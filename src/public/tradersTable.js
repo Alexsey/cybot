@@ -57,14 +57,19 @@ async function updateTradersTable () {
               ${formatUSDT(startInUSDT)}
             </div>
           </div>
-          <div class="row">
-            <div class="col">
-              ${formatCoinInUSDT(startPositionsInUSDT)}
-            </div>
-            <div class="col">
-              ${formatUSDT(startUSDT)}
-            </div>
-          </div>
+          ${startPositionsInUSDT != null && startUSDT != null
+            ? `
+              <div class="row">
+                  <div class="col">
+                      ${formatCoinInUSDT(startPositionsInUSDT)}
+                  </div>
+                <div class="col">
+                  ${formatUSDT(startUSDT)}
+                </div>
+              </div>
+            `
+            : ''
+          }
           <div class="row">
             <div class="col">
               ${formatPct(startTradePct)}
@@ -140,13 +145,6 @@ function formTradersTableData (data, rates) {
 
     const traderData = {balances, orderHistory, depositHistory, withdrawalHistory}
 
-    const startInUSDT = _(getBalancesAt(traderData, periodStartDate))
-      .map((balance, currency) => rates[currency] * balance).sum()
-    const startUSDT = getBalancesAt(traderData, periodStartDate, 'USDT')
-    const startPositionsInUSDT = startInUSDT - startUSDT
-    const startTrade = getTrade(orderHistory, {rates, after: periodStartDate})
-    const startTradePct = startTrade / startInUSDT
-
     const todayInUSDT = _(getBalancesAt(traderData, today))
       .map((balance, currency) => rates[currency] * balance).sum()
     const todayUSDT = getBalancesAt(traderData, today, 'USDT')
@@ -158,6 +156,19 @@ function formTradersTableData (data, rates) {
     const inUSDT = _(balances)
       .map(({currency, balance}) => balance * rates[currency]).sum()
     const positionsInUSDT = inUSDT - USDT
+
+    let startInUSDT, startUSDT, startPositionsInUSDT ,startTrade
+    if (config.tradersTable.useFakeData && config.tradersTable.fakeData[traderName]) {
+      startInUSDT = config.tradersTable.fakeData[traderName].startInUSDT
+      startTrade = inUSDT - startInUSDT
+    } else {
+      startInUSDT = _(getBalancesAt(traderData, periodStartDate))
+        .map((balance, currency) => rates[currency] * balance).sum()
+      startUSDT = getBalancesAt(traderData, periodStartDate, 'USDT')
+      startPositionsInUSDT = startInUSDT - startUSDT
+      startTrade = getTrade(orderHistory, {rates, after: periodStartDate})
+    }
+    const startTradePct = startTrade / startInUSDT
 
     return {
       traderName,

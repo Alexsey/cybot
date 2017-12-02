@@ -3,6 +3,23 @@
 const config = {
   periodStartDate: 12,
   bittrexCommission: 0.0025,
+  tradersTable: {
+    useFakeData: true,
+    fakeData: {
+      Stanislav: {
+        startInUSDT: 500
+      },
+      Yaroslav: {
+        startInUSDT: 2000
+      },
+      Test: {
+        startInUSDT: 500
+      },
+      Alexey: {
+        startInUSDT: 500
+      },
+    }
+  },
   minersTable: {
     currencies: ['ETH', 'XMR', 'MUSIC'],
     useFakeData: true,
