@@ -9,7 +9,7 @@ const config = {
     useFakeData: true,
     fakeData: {
       Stanislav: {
-        startInUSDT: 12585
+        startInUSDT: 3000
       },
       Yaroslav: {
         startInUSDT: 2020

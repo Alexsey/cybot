@@ -11,9 +11,9 @@ exports.credentials = [
 }, {
   name: 'Stanislav',
   roles: ['trader'],
-  key: 'edaf40a54f1e465eaeab91ede87b6c9c',
+  key: '2b06579c8cab4a9fb0500ac23dfb8291',
   secrets: {
-    read: '3cac610043144300967d4989897afeb3'
+    read: '27eb1819077e4ab288f7ea1cc6f088ee'
   }
 }, {
   name: 'Yaroslav',
