@@ -11,7 +11,7 @@ async function updateOrdersTable (traderName, currency) {
   const rows = _.flatMap(pairs, ({
     currencySecond, orders, avgMainBuy, avgMainSell, avgSecondBuy, avgSecondSell
   }) => {
-    const currentRate = data.marketSummaries.find(m =>
+    const currentRate = data.common.marketSummaries.find(m =>
       m.marketName.includes(currency)
       && m.marketName.includes(currencySecond)
     ) || {marketName: `${currency}-${currencySecond}`, last: 0}
