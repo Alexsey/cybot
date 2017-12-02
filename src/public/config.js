@@ -7,16 +7,16 @@ const config = {
     useFakeData: true,
     fakeData: {
       Stanislav: {
-        startInUSDT: 500
+        startInUSDT: 12585
       },
       Yaroslav: {
-        startInUSDT: 2000
+        startInUSDT: 2020
       },
       Test: {
-        startInUSDT: 500
+        startInUSDT: 318
       },
       Alexey: {
-        startInUSDT: 500
+        startInUSDT: 493
       },
     }
   },
