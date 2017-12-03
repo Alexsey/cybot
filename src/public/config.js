@@ -1,7 +1,7 @@
 'use strict'
 
 const config = {
-  periodStartDate: 12,
+  periodStartDate: 1,
   bittrexCommission: 0.0025,
   tradersTable: {
     // in hours. Could be float ex. 1/3. Set 0 to use actual time
