@@ -8,7 +8,7 @@
     "start": "node src/bittrex.js",
     "deploy": "git push -f evennode master",
     "commit": "git commit -am \"auto commit\" && git pull --rebase && git push && npm run deploy",
-    "commitAt": "git commit -am \"auto commit\" && git pull --rebase && git push && node src/deployScheduler.js"
+    "commitAt": "node src/deployScheduler.js"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
