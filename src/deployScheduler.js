@@ -1,5 +1,10 @@
 'use strict'
 
+// need to run in git bash (or any UNIX console)
+// before run this script or it will fail
+// eval `ssh-agent -s`
+// ssh-add ~/.ssh/*_rsa
+
 const _ = require('lodash')
 const moment = require('moment')
 const shell = require('shelljs')
