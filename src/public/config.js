@@ -22,6 +22,9 @@ const config = {
       },
     }
   },
+  ordersTable: {
+    historyDepth: 7, // days
+  },
   minersTable: {
     currencies: ['ETH', 'XMR', 'MUSIC'],
     useFakeData: true,

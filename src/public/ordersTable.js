@@ -106,12 +106,10 @@ async function updateOrdersTable (traderName, currency) {
 
 function formOrdersTableData (data, traderName, currency) {
   const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
-  const periodStartDate = today.date() >= config.periodStartDate
-    ? moment(today).date(config.periodStartDate)
-    : moment(today).subtract(1, 'month').date(config.periodStartDate)
+  const historyDepthDate = moment(today).subtract(config.ordersTable.historyDepth, 'days')
 
   return _(data.orderHistory[traderName])
-    .filter(o => moment(o.timeStamp).isAfter(periodStartDate))
+    .filter(o => moment(o.timeStamp).isAfter(historyDepthDate))
     .filter(o => o.exchange.includes(currency))
     .map(o => {
       const {

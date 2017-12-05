@@ -32,10 +32,8 @@ async function updateCurrencyTable (traderName) {
    }
   ) => {
     const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
-    const periodStartDate = today.date() >= config.periodStartDate
-      ? moment(today).date(config.periodStartDate)
-      : moment(today).subtract(1, 'month').date(config.periodStartDate)
-    const cellButton = lastOrderDate && moment(lastOrderDate).isAfter(periodStartDate)
+    const historyDepthDate = moment(today).subtract(config.ordersTable.historyDepth, 'days')
+    const cellButton = lastOrderDate && moment(lastOrderDate).isAfter(historyDepthDate)
       ? `class="cell-button" onClick="updateOrdersTable('${traderName}', '${currency}')"`
       : ''
     return `
