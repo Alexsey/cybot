@@ -29,18 +29,18 @@ const config = {
     currencies: ['ETH', 'XMR', 'MUSIC'],
     useFakeData: true,
     fakeData: {
-      ETH:   {deposit: 43.856293715868, withdrawal: 0},
+      ETH:   {deposit: 44.856373715868, withdrawal: 0},
       XMR:   {deposit: 17.892112288329, withdrawal: 0},
-      MUSIC: {deposit: 127536.13919512, withdrawal: 0},
+      MUSIC: {deposit: 128558.92461418, withdrawal: 0},
       BCN:   {deposit: 50765.94000000, withdrawal: 0},
     }
   },
   minersAccountTable: {
-    total: 30871
+    total: 31147
   },
   mainAccountTable: {
     start: 15500,
-    yesterday: 22567,
-    current: 21987 
+    yesterday: 21987,
+    current: 22015
   }
 }
