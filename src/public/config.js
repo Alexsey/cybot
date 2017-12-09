@@ -41,6 +41,6 @@ const config = {
   mainAccountTable: {
     start: 15500,
     yesterday: 19675,
-    current: 19354
+    current: 19355
   }
 }
