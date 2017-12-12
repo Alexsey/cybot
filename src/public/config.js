@@ -36,11 +36,11 @@ const config = {
     }
   },
   minersAccountTable: {
-    total: 29341
+    total: 31437
   },
   mainAccountTable: {
     start: 15500,
     yesterday: 19476,
-    current: 19117
+    current: 20874
   }
 }
