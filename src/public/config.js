@@ -18,7 +18,7 @@ const config = {
         startInUSDT: 318
       },
       Alexey: {
-        startInUSDT: 493
+        startInUSDT: 1993
       },
     }
   },
@@ -36,11 +36,11 @@ const config = {
     }
   },
   minersAccountTable: {
-    total: 39436
+    total: 41015
   },
   mainAccountTable: {
     start: 14000,
     yesterday: 28148,
-    current: 28783
+    current: 28127
   }
 }
