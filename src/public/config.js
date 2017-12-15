@@ -18,7 +18,7 @@ const config = {
         startInUSDT: 318
       },
       Alexey: {
-        startInUSDT: 1993
+        startInUSDT: 493
       },
     }
   },
