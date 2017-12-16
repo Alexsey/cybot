@@ -31,7 +31,7 @@ const config = {
     fakeData: {
       ETH:   {deposit: 45.856413715869, withdrawal: 0},
       XMR:   {deposit: 17.892112288329, withdrawal: 0},
-      MUSIC: {deposit: 134999.35946741, withdrawal: 0},
+      MUSIC: {deposit: 136887.65158445, withdrawal: 0},
       BCN:   {deposit: 50765.94000000, withdrawal: 0},
     }
   },
