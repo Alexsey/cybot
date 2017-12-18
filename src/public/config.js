@@ -9,7 +9,7 @@ const config = {
     useFakeData: true,
     fakeData: {
       Stanislav: {
-        startInUSDT: 3000
+        startInUSDT: 7000
       },
       Yaroslav: {
         startInUSDT: 2020
@@ -39,7 +39,7 @@ const config = {
     total: 44731
   },
   mainAccountTable: {
-    start: 14000,
+    start: 10000,
     yesterday: 29187,
     current: 31935
   }
