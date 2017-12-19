@@ -20,7 +20,7 @@ const config = {
       Alexey: {
         startInUSDT: 493
       },
-      Alexey 1: {
+      'Alexey 1': {
         startInUSDT: 2047
       },       
     }
