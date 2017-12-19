@@ -20,6 +20,9 @@ const config = {
       Alexey: {
         startInUSDT: 493
       },
+      Alexey 1: {
+        startInUSDT: 2047
+      },       
     }
   },
   ordersTable: {
