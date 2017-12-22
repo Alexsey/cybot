@@ -26,7 +26,8 @@ async function getData () {
     }),
     miners: new Promise((fulfill, reject) => {
       const xhr = new XMLHttpRequest()
-      xhr.open('GET', '/data/miners?data=deposits,withdrawals')
+      // orders and balances are only for temp mainers-account-table
+      xhr.open('GET', '/data/miners?data=orders,deposits,withdrawals,balances')
       xhr.onerror = () => reject(xhr)
       xhr.onloadend = () => fulfill(JSON.parse(xhr.responseText))
       xhr.send()

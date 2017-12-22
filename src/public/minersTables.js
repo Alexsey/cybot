@@ -7,7 +7,7 @@ async function updateMinersTables () {
   loader.buildingTable()
   await new Promise(fulfill => setTimeout(fulfill, 30)) // hack to loader.buildingTable() to execute
 
-  const minerName = _.keys(data.miners.depositHistory)[0]
+  const minerName = _.keys(data.miners.depositHistory)[0] // Vladimir
   const depositHistory = data.miners.depositHistory[minerName]
   const withdrawalHistory = data.miners.withdrawalHistory[minerName]
   const rowsData = config.minersTable.useFakeData
@@ -15,7 +15,13 @@ async function updateMinersTables () {
     : formMinersTableData(depositHistory, withdrawalHistory, data.rates)
 
   document.getElementById('miners-table').innerHTML = buildMinersTable(rowsData)
-  document.getElementById('miners-account-table').innerHTML = buildMainersAccountTable(rowsData)
+
+  const balances = data.miners.balances[minerName]
+  const orderHistory = data.miners.orderHistory[minerName]
+  const minerData = {balances, orderHistory, depositHistory, withdrawalHistory}
+  const minersAccountRowsData = formMinersAccountTableData(rowsData, minerData, data.rates)
+  document.getElementById('miners-account-table').innerHTML
+    = buildMainersAccountTable(minersAccountRowsData)
 
   loader.disable()
 }
@@ -57,6 +63,21 @@ function formMinersTableDataFake (rates) {
       totalUSDT
     }
   })
+}
+
+function formMinersAccountTableData (minersTableData, minerData, rates) {
+  const {getBalancesAt} = bittrexHelpers
+  const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
+
+  const addToStart = 10000
+  const reduceBTC = 3.45643030
+  const reduceBy = reduceBTC * rates.BTC
+
+  const total = _.sumBy(minersTableData, 'totalUSDT') + addToStart
+  const yesterday = getBalancesAt(minerData, today).total - reduceBy
+  const current = getBalancesAt(minerData).total - reduceBy
+
+  return {total, yesterday, current}
 }
 
 function buildMinersTable (rowsData) {
@@ -142,7 +163,43 @@ function buildMinersTable (rowsData) {
   `
 }
 
-function buildMainersAccountTable (rowsData) {
+function buildMainersAccountTable ({total, yesterday, current}) {
+  const headersRow = `
+    <div class="row row-delimiter">
+      <div class="col">
+          Start
+      </div>
+      <div class="col">
+          Yesterday
+      </div>
+      <div class="col">
+          Current
+      </div>
+    </div>
+  `
+
+  const dataRow = `
+    <div class="row row-bottom-delimiter">
+      <div class="col">
+          ${formatUSDT(total)}
+      </div>
+      <div class="col">
+          ${formatUSDT(yesterday)}
+      </div>
+      <div class="col">
+          ${formatUSDT(current)}
+      </div>
+    </div>
+  `
+
+  return `
+    <div class="table-header">Miners Account</div>
+    <div><br></div>
+    <div class="container">${headersRow}${dataRow}</div>
+  `
+}
+
+function buildMainersAccountTable_old (rowsData) {
   const headersRow = `
     <div class="row row-delimiter">
       <div class="col">
