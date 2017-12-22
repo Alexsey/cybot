@@ -5,7 +5,6 @@ require('util').inspect.styles.number = 'cyan'
 const _ = require('lodash') || false
 const {transform, difference} = _
 const bb = require('bluebird')
-const rp = require('request-promise')
 const app = new (require('koa')) || false
 const auth = require('koa-basic-auth') || false
 const router = new (require('koa-router')) || false
@@ -82,21 +81,3 @@ process.on('unhandledRejection', (reason, error) => {
 
   // console.log(_(data.orderHistory).filter('quantityRemaining').value())
 // })()
-
-const order =  {
-  orderUuid: '7b0f9965-8ef7-4907-ae35-daea0045d41b',
-  exchange: 'BTC-ETH',
-  timeStamp: '2017-09-21T14:33:29.42',
-  orderType: 'LIMIT_SELL',
-  limit: 0.07317,
-  quantity: 11.80845382,
-  quantityRemaining: 0,
-  commission: 0.00216452,
-  price: 0.86581011,
-  pricePerUnit: 0.0733212,
-  isConditional: false,
-  condition: 'NONE',
-  conditionTarget: null,
-  immediateOrCancel: false,
-  closed: '2017-09-21T14:33:29.543'
-}
