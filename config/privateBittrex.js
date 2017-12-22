@@ -1,7 +1,6 @@
 'use strict'
 
-exports.credentials = [
-{
+exports.credentials = [{
   name: 'Vladimir',
   roles: ['miner'],
   key: '5301d2f6e27643c8a504cc2ca0b2466a',
@@ -23,6 +22,13 @@ exports.credentials = [
     read: '3517fa65bb5b4bae99ee4660fe18a206'
   }
 }, {
+//   name: 'Test',
+//   roles: ['trader'],
+//   key: '95a30c7e284943d792480518bd499506',
+//   secrets: {
+//     read: '417ae6bf36004c258d0fae184d48d36a'
+//   }
+// }, {
   name: 'Alexey',
   roles: ['trader'],
   key: '6b4307f661f24b27aaad02b0a8fdcf0a',
@@ -35,6 +41,5 @@ exports.credentials = [
   key: 'cf9bc0a1b0894e25b66c619c277105bd',
   secrets: {
     read: '140659bde1564c8f8983f104a605608f'
-
   }
 }]
