@@ -18,7 +18,7 @@ const config = {
         startInUSDT: 318
       },
       Alexey: {
-        startInUSDT: 493
+        startInUSDT: 2047
       },
       'Alexey 1': {
         startInUSDT: 2047
@@ -34,16 +34,16 @@ const config = {
     fakeData: {
       ETH:   {deposit: 47.858283715869, withdrawal: 0},
       XMR:   {deposit: 17.892112288329, withdrawal: 0},
-      MUSIC: {deposit: 145251.21969615, withdrawal: 0},
+      MUSIC: {deposit: 143407.07728614, withdrawal: 0},
       BCN:   {deposit: 50765.94000000, withdrawal: 0},
     }
   },
   minersAccountTable: {
-    total: 0
+    total: 50467
   },
   mainAccountTable: {
     start: 10000,
-    yesterday: 0,
-    current: 0,
+    yesterday: 29325,
+    current: 29753,
   }
 }
