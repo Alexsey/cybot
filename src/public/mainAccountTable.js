@@ -31,7 +31,7 @@ function buildMainAccountTable ({total, yesterday, current}) {
   `
 
   return `
-    <div class="table-header">Miners Account</div>
+    <div class="table-header">Main Account</div>
     <div><br></div>
     <div class="container">${headersRow}${dataRow}</div>
   `
