@@ -1,21 +1,5 @@
 'use strict'
 
-function formMinersAccountTableData (minersTableData, minerData, rates) {
-  const {getBalancesAt} = bittrexHelpers
-  const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
-
-  const addToStart = 10000
-  const reduceBTC = 3.45643030
-  const reduceBy = reduceBTC * rates.BTC
-
-  const total = _.sumBy(minersTableData, 'totalUSDT') + addToStart
-  const yesterday = getBalancesAt(minerData, today).total - reduceBy
-  const current = getBalancesAt(minerData).total - reduceBy
-
-  return {total, yesterday, current}
-}
-
-
 function buildMainersAccountTable (rowsData) {
   const headersRow = `
     <div class="row row-delimiter">

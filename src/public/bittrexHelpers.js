@@ -11,7 +11,7 @@ const {
 } = _
 
 const bittrexHelpers = (() => {
-  function getBalancesAt (traderData, at, currency) {
+  function getBalancesAt (traderData, at = Date.now(), currency) {
     return currency
       ? getBalanceOfTrader(traderData, at, currency)
       : _(traderData.balances)

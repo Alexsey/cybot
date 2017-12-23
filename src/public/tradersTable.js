@@ -103,12 +103,12 @@ function buildTradersTable (rows) {
               </div>
             </div>
             <div class="row">
-            <div class="col">
-              ${formatPct(todayTradePct)}
-            </div>
-            <div class="col">
-              ${formatUSDT(todayTrade)}
-            </div>
+              <div class="col">
+                ${formatPct(todayTradePct)}
+              </div>
+              <div class="col">
+                ${formatUSDT(todayTrade)}
+              </div>
           </div>
         </div>
       </div>
@@ -149,7 +149,7 @@ function formTradersTableData (data, rates) {
     const inUSDT = getBalancesAt(traderData, currentTime).total
     const positionsInUSDT = inUSDT - USDT
 
-    let startInUSDT, startUSDT, startPositionsInUSDT ,startTrade
+    let startInUSDT, startUSDT, startPositionsInUSDT, startTrade
     if (config.tradersTable.useFakeData && config.tradersTable.fakeData[traderName]) {
       startInUSDT = config.tradersTable.fakeData[traderName].startInUSDT
       startTrade = inUSDT - startInUSDT

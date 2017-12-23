@@ -1,7 +1,21 @@
 'use strict'
 
+function formMinersAccountTableData (minersTableData, minerData, rates) {
+  const {getBalancesAt} = bittrexHelpers
+  const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
 
-function buildMainAccountTable ({total, yesterday, current}) {
+  const addToStart = 10000
+  const reduceBTC = 3.45643030
+  const reduceBy = reduceBTC * rates.BTC
+
+  const startInUSDT = _.sumBy(minersTableData, 'totalUSDT') + addToStart
+  const todayInUSDT = getBalancesAt(minerData, today).total - reduceBy
+  const inUSDT = getBalancesAt(minerData).total - reduceBy
+
+  return {startInUSDT, todayInUSDT, inUSDT}
+}
+
+function buildMainAccountTable ({startInUSDT, todayInUSDT, inUSDT}) {
   const headersRow = `
     <div class="row row-delimiter">
       <div class="col">
@@ -16,16 +30,49 @@ function buildMainAccountTable ({total, yesterday, current}) {
     </div>
   `
 
-  const dataRow = `
+  const startTrade = inUSDT - startInUSDT
+  const startTradePct = startTrade / startInUSDT
+  const todayTrade = inUSDT - todayInUSDT
+  const todayTradePct = todayTrade / todayInUSDT
+
+  const dataRows = `
+    <div class="row">
+      <div class="col">
+          ${formatUSDT(startInUSDT)}
+      </div>
+      <div class="col">
+          ${formatUSDT(todayInUSDT)}
+      </div>
+      <div class="col">
+          ${formatUSDT(inUSDT)}
+      </div>
+    </div>
     <div class="row row-bottom-delimiter">
       <div class="col">
-          ${formatUSDT(total)}
+        <div class="row">
+            <div class="col">
+                ${formatUSDT(startTrade)}
+            </div>
+            <div class="col">
+                ${formatPct(startTradePct)}
+            </div>
+        </div>
       </div>
       <div class="col">
-          ${formatUSDT(yesterday)}
+        <div class="row">
+            <div class="col">&nbsp;</div>
+            <div class="col">&nbsp;</div>
+        </div>
       </div>
       <div class="col">
-          ${formatUSDT(current)}
+        <div class="row">
+            <div class="col">
+                ${formatUSDT(todayTrade)}
+            </div>
+            <div class="col">
+                ${formatPct(todayTradePct)}
+            </div>
+        </div>
       </div>
     </div>
   `
@@ -33,7 +80,7 @@ function buildMainAccountTable ({total, yesterday, current}) {
   return `
     <div class="table-header">Main Account</div>
     <div><br></div>
-    <div class="container">${headersRow}${dataRow}</div>
+    <div class="container">${headersRow}${dataRows}</div>
   `
 }
 
