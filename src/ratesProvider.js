@@ -1,6 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
+const moment = require('moment')
 const {Op: {gte, lt}} = require('sequelize')
 
 const {csvToObj} = require('./utils')
@@ -17,12 +18,16 @@ exports.getRatesAt = async time => {
 }
 
 async function getPastRates (time) {
-  const [{rates: rateBittrex} = {}, {rates: rateCmc} = {}]
+  const [{rates: rateBittrex, createdAt} = {}, {rates: rateCmc} = {}]
     = await getRatesDataAt(time)
 
   return _(csvToObj(rateBittrex))
     .defaults(csvToObj(rateCmc))
     .mapValues(v => +v)
+    .defaults({
+      __ratesDate__: createdAt,
+      __ratesDateStr__: moment(createdAt).utc().format()
+    })
     .value()
 }
 
@@ -72,5 +77,12 @@ async function getCurrentRates () {
     coinMarketCap.rates()
   ])
 
-  return _(bittrexRates).defaults(cmcRates).mapValues(v => +v).value()
+  return _(bittrexRates)
+    .defaults(cmcRates)
+    .mapValues(v => +v)
+    .defaults({
+      __ratesDate__: Date.now(),
+      __ratesDateStr__: moment().utc().format()
+    })
+    .value()
 }
