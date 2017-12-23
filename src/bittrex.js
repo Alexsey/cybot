@@ -81,22 +81,3 @@ process.on('unhandledRejection', (reason, error) => {
   console.error(reason)
   throw error
 })
-
-// const moment = require('moment-timezone')
-// const {getBalancesAt, getRates} = require('./public/bittrexHelpers')
-// ;(async () => {
-//   const data = await bb.props({
-    // marketSummaries: first.getMarketSummaries(),
-    // orderHistory: first.getOrderHistory(),
-    // depositHistory: first.getDepositHistory(),
-    // withdrawalHistory: first.getWithdrawalHistory(),
-    // balances: first.getBalances()
-  // })
-
-  // const rates = getRates(data.marketSummaries)
-  // const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
-  // const yesterday = moment(today).subtract(1, 'day')
-  // const periodStartDate = moment(today).date(1)
-
-  // console.log(_(data.orderHistory).filter('quantityRemaining').value())
-// })()
