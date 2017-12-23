@@ -21,4 +21,6 @@ exports.bittrex = _.merge({
   port: process.env.PORT || 3000
 }, require('./privateBittrex'))
 
+exports.shouldRunGrabber = process.env.SHOULD_RUN_GRABBER
+
 exports.db = require('./db')

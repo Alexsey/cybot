@@ -1,6 +1,7 @@
 'use strict'
 
-const {dropWhile, now} = require('lodash')
+const _ = require('lodash')
+const {dropWhile, now} = _
 
 exports.getThrottle = (lim = 1, time = 1000) => {
   let q = []
@@ -17,6 +18,21 @@ exports.getThrottle = (lim = 1, time = 1000) => {
     return f(...args)
   }
 }
+
+exports.objToCsv = obj =>
+  _(obj)
+    .toPairs()
+    .unzip()
+    .invokeMap('join', ';')
+    .join('\n')
+
+exports.csvToObj = csv =>
+  _(csv)
+    .split('\n')
+    .invokeMap('split', ';')
+    .unzip()
+    .fromPairs()
+    .value()
 
 exports.getNonce = () => {
   const last = [now() / 1000 | 0, 0]
