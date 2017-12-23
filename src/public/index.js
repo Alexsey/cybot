@@ -4,13 +4,34 @@ let data
 
 window.onload = async () => {
   data = await getData()
-  // async long loading tables
-  await Promise.all([
-    updateTradersTable(),
-    updateMinersTables()
-  ])
-  // fast loading tables
-  updateMainAccountTable()
+
+  document.getElementById('miners-table').innerHTML = ''
+  document.getElementById('miners-account-table').innerHTML = ''
+  document.getElementById('traders-table').innerHTML = ''
+  document.getElementById('miners-account-table').innerHTML = ''
+
+  loader.buildingTable()
+  loader.buildingTable()
+
+  await new Promise(fulfill => setTimeout(fulfill, 30)) // hack to loader.buildingTable() to execute
+
+  const tradersTableRowsData = formTradersTableData(data, data.rates)
+  document.getElementById('traders-table').innerHTML = buildTradersTable(tradersTableRowsData)
+  loader.disable()
+
+  const minerData = data.getData('miner', 'Vladimir')
+  const {depositHistory, withdrawalHistory} = minerData
+
+  const minersTableRowsData = config.minersTable.useFakeData
+    ? formMinersTableDataFake(data.rates)
+    : formMinersTableData(depositHistory, withdrawalHistory, data.rates)
+  document.getElementById('miners-table').innerHTML = buildMinersTable(minersTableRowsData)
+
+  const mainAccountRowsData = formMinersAccountTableData(minersTableRowsData, minerData, data.rates)
+  document.getElementById('main-account-table').innerHTML
+    = buildMainAccountTable(mainAccountRowsData)
+
+  loader.disable()
 }
 
 async function getData () {
@@ -44,6 +65,15 @@ async function getData () {
     bittrexHelpers.getRates(data.common.marketSummaries),
     _.mapValues(data.common.coinMarketCapRates, v => +v)
   )
+
+  data.getData = (role, name) => ({
+    balances         : data[`${role}s`].balances[name],
+    orderHistory     : data[`${role}s`].orderHistory[name],
+    depositHistory   : data[`${role}s`].depositHistory[name],
+    withdrawalHistory: data[`${role}s`].withdrawalHistory[name]
+  })
+
+  data.getNames = role => _.keys(data[role].balances)
 
   loader.disable()
   // hack to loader.display() to execute

@@ -1,15 +1,9 @@
 'use strict'
 
-async function updateTradersTable () {
-  document.getElementById('traders-table').innerHTML = ''
-
-  loader.buildingTable()
-  await new Promise(fulfill => setTimeout(fulfill, 30)) // hack to loader.buildingTable() to execute
-
-  const rows = formTradersTableData(data.traders, data.rates)
+function buildTradersTable (rows) {
   // Yesterday column is containing today's data. Actually it is a
   // 00:00 of today, but in UI it is easier to ready as "Yesterday"
-  const headersRow = `
+    const headersRow = `
     <div class="row row-delimiter">
       <div class="col-sm-1">
           Trader Name
@@ -120,12 +114,11 @@ async function updateTradersTable () {
       </div>
     `
   }).join('\n')
-  document.getElementById('traders-table').innerHTML = `
+  return `
     <div class="table-header">Traders Table</div>
     <div><br></div>
     <div class="container">${headersRow}${dataRows}</div>
   `
-  loader.disable()
 }
 
 function formTradersTableData (data, rates) {
@@ -142,13 +135,9 @@ function formTradersTableData (data, rates) {
   // if config.tradersTable.currentTimePeriod == 0 than currentTime is actually current
   const currentTime = floor(Date.now() / currentTimePeriod) * currentTimePeriod || Date.now()
 
-  const table = _(data.balances).keys().map(traderName => {
-    const balances = data.balances[traderName]
-    const orderHistory = data.orderHistory[traderName]
-    const depositHistory = data.depositHistory[traderName]
-    const withdrawalHistory = data.withdrawalHistory[traderName]
-
-    const traderData = {balances, orderHistory, depositHistory, withdrawalHistory}
+  const table = data.getNames('traders').map(traderName => {
+    const traderData = data.getData('trader', traderName)
+    const {orderHistory} = traderData
 
     const todayInUSDT = getBalancesAt(traderData, today).total
     const todayUSDT = getBalancesAt(traderData, today, 'USDT')
@@ -183,7 +172,7 @@ function formTradersTableData (data, rates) {
 
       inUSDT, positionsInUSDT, USDT,
     }
-  }).value()
+  })
 
   const totalStartInUSDT = sumBy(table, 'startInUSDT')
   const totalStartTrade = sumBy(table, 'startTrade')
