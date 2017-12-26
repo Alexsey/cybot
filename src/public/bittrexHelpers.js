@@ -38,7 +38,7 @@ const bittrexHelpers = (() => {
     })
   }
 
-  function getBalanceOfTrader (data, at, currency) {
+  function getBalanceOfTrader (data, at = Date.now(), currency) {
     const {orderHistory, balances, depositHistory, withdrawalHistory} = data
     const {balance} = find(balances, {currency})
     const trade = getTrade(orderHistory, {currency, after: at})
@@ -166,14 +166,9 @@ const bittrexHelpers = (() => {
     getBalancesAt,
 
     getTrade,
-    getBuySellOrders,
-    getBuyAmount,
-    getSellAmount,
-    getCommission,
 
     getIO,
     getWithdrawal,
     getDeposit,
-    getTxCost,
   }
 })()
