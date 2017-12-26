@@ -25,7 +25,7 @@ async function getPastRates (time) {
     .defaults(csvToObj(rateCmc))
     .mapValues(v => +v)
     .defaults({
-      __ratesDate__: createdAt,
+      __ratesDate__: +createdAt,
       __ratesDateStr__: moment(createdAt).utc().format()
     })
     .value()

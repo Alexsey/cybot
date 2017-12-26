@@ -39,14 +39,14 @@ const router = new (require('koa-router')) || false
     })
   })
 
-  router.get('/rates/:source', async ctx => {
-    const {source} = ctx.params
+  router.get('/rates', async ctx => {
     const at = ctx.query.at && +moment(+ctx.query.at || ctx.query.at)
-    switch (source) {
-      case 'mix': return ctx.body = await getRatesAt(at)
+    const {of} = ctx.query
+    switch (of) {
+      case undefined: return ctx.body = await getRatesAt(at)
       case 'bittrex': return ctx.throw('not implemented')
       case 'cmc': return ctx.throw('not implemented')
-      default: ctx.throw(`invalid rates source "${source}". Available are "mix", "bittrex" and "cmc"`)
+      default: ctx.throw(`invalid rates source "${of}". Available are "bittrex", "cmc" or no value`)
     }
   })
 
