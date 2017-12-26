@@ -11,13 +11,8 @@ async function updateOrdersTable (traderName, currency) {
   const rows = _.flatMap(pairs, ({
     currencySecond, orders, avgMainBuy, avgMainSell, avgSecondBuy, avgSecondSell
   }) => {
-    const currentRate = data.common.marketSummaries.find(m =>
-      m.marketName.includes(currency)
-      && m.marketName.includes(currencySecond)
-    ) || {marketName: `${currency}-${currencySecond}`, last: 0}
-    const [mainToSecondRate, secondToMainRate] = currentRate.marketName.startsWith(currency)
-      ? [currentRate.last, 1 / currentRate.last]
-      : [1 / currentRate.last, currentRate.last]
+    const mainToSecondRate = data.rates[currency] / data.rates[currencySecond]
+    const secondToMainRate = 1 / mainToSecondRate
 
     const pairRow = `
     <div class="row row-delimiter">
@@ -105,7 +100,7 @@ async function updateOrdersTable (traderName, currency) {
 }
 
 function formOrdersTableData (data, traderName, currency) {
-  const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
+  const today = moment().tz('EET').hours(0).minutes(0).seconds(0).milliseconds(0)
   const historyDepthDate = moment(today).subtract(config.ordersTable.historyDepth, 'days')
 
   return _(data.orderHistory[traderName])

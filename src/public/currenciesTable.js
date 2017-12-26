@@ -6,7 +6,7 @@ async function updateCurrencyTable (traderName) {
   loader.buildingTable()
   await new Promise(fulfill => setTimeout(fulfill, 30)) // hack to loader.buildingTable() to execute
 
-  const rows = formCurrenciesTableData(data.traders, data.rates, traderName)
+  const rows = await formCurrenciesTableData(data.traders, data.rates, traderName)
   // Yesterday column is containing today's data. Actually it is a
   // 00:00 of today, but in UI it is easier to ready as "Yesterday"
   const headersRow = `
@@ -31,7 +31,7 @@ async function updateCurrencyTable (traderName) {
     balance, inUSDT, lastOrderDate
    }
   ) => {
-    const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
+    const today = moment().tz('EET').hours(0).minutes(0).seconds(0).milliseconds(0)
     const historyDepthDate = moment(today).subtract(config.ordersTable.historyDepth, 'days')
     const cellButton = lastOrderDate && moment(lastOrderDate).isAfter(historyDepthDate)
       ? `class="cell-button" onClick="updateOrdersTable('${traderName}', '${currency}')"`
@@ -82,36 +82,37 @@ async function updateCurrencyTable (traderName) {
   loader.disable()
 }
 
-function formCurrenciesTableData (data, rates, traderName) {
+async function formCurrenciesTableData (data, rates, traderName) {
   const {getBalancesAt, getTrade} = bittrexHelpers
 
   const balances = data.balances[traderName]
   const orderHistory = data.orderHistory[traderName]
   const withdrawalHistory = data.withdrawalHistory[traderName]
   const depositHistory = data.depositHistory[traderName]
-  const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
+  const today = moment().tz('EET').hours(0).minutes(0).seconds(0).milliseconds(0)
   const traderData = {balances, orderHistory, withdrawalHistory, depositHistory}
 
-  return balances
-    .map(({balance, currency}) => {
-      const todayBalance = getBalancesAt(traderData, today, currency)
-      const todayInUSDT = todayBalance * rates[currency]
-      const todayTrade = getTrade(orderHistory, {currency, after: today})
-      const todayTradeInUSDT = todayTrade * rates[currency]
+  return (await Promise.map(balances, async ({balance, currency}) => {
+    const todayBalance = await getBalancesAt(traderData, today, currency)
+    const todayInUSDT = todayBalance * rates[currency]
+    const todayTrade = getTrade(orderHistory, {currency, after: today})
+    const todayTradeInUSDT = todayTrade * rates[currency]
 
-      const inUSDT = balance * rates[currency]
-      const lastOrder = orderHistory.find(o => o.exchange.includes(currency))
-      const lastOrderDate = lastOrder && lastOrder.timeStamp
+    const inUSDT = balance * rates[currency]
+    const lastOrder = orderHistory.find(o => o.exchange.includes(currency))
+    const lastOrderDate = lastOrder && lastOrder.timeStamp
 
-      return {
-        currency,
+    return {
+      currency,
 
-        todayBalance, todayInUSDT,
-        todayTrade, todayTradeInUSDT,
+      todayBalance, todayInUSDT,
+      todayTrade, todayTradeInUSDT,
 
-        balance, inUSDT, lastOrderDate
-      }
-    })
-    .filter(r => _(r).omit(['currency', 'lastOrderDate'])
-    .some(Boolean))
+      balance, inUSDT, lastOrderDate
+    }
+  }))
+    .filter(r => _(r)
+      .omit(['currency', 'lastOrderDate'])
+      .some(Boolean)
+    )
 }

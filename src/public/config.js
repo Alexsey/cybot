@@ -5,7 +5,7 @@ const config = {
   bittrexCommission: 0.0025,
   tradersTable: {
     // in hours. Could be float ex. 1/3. Set 0 to use actual time
-    currentTimePeriod: 0,
+    currentTimePeriod: 1 / 2,
     useFakeData: true,
     fakeData: {
       Stanislav: {

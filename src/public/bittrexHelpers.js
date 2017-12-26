@@ -7,22 +7,24 @@
 */
 
 const {
-  keys, mapValues, sumBy, transform, find, flatMap, remove, reject
+  mapValues, sum, sumBy, map, transform, find, reject
 } = _
 
 const bittrexHelpers = (() => {
-  function getBalancesAt (traderData, at = Date.now(), currency) {
-    return currency
-      ? getBalanceOfTrader(traderData, at, currency)
-      : _(traderData.balances)
-        .transform((acc, {currency}) => {
-          acc[currency] = getBalanceOfTrader(traderData, at, currency)
-        }, {})
-        .tap(balances => {
-          balances.total = _(balances)
-            .map((balance, currency) => data.rates[currency] * balance).sum()
-        })
-        .value()
+  async function getBalancesAt (traderData, at, currency) {
+    if (currency) return getBalanceOfTrader(traderData, at, currency)
+
+    const balances = transform(traderData.balances,
+      (acc, {currency}) =>
+        acc[currency] = getBalanceOfTrader(traderData, at, currency),
+      {}
+    )
+
+    balances.total = sum(await Promise.all(map(balances,
+      async (balance, currency) => (await data.getRatesAt(at))[currency] * balance
+    )))
+
+    return balances
   }
 
   function getAllBalancesAt (data, at, currency) {
@@ -44,32 +46,6 @@ const bittrexHelpers = (() => {
     // because of float operations it would no always become 0 while it should be
     const res = balance - trade - io
     return Math.abs(res) < 1e-8 ? 0 : res
-  }
-
-  function getRates (marketSummaries) {
-    const rates = {USDT: 1}
-    marketSummaries = marketSummaries.slice()
-    let newRates = new Set(keys(rates))
-    while (newRates.size) {
-      const newPairs = flatMap([...newRates.values()], currency =>
-        remove(marketSummaries, m => m.marketName.includes(currency))
-      )
-      newRates = new Set
-      newPairs.forEach(({marketName: pair, last: price}) => {
-        const [cur1, cur2] = pair.split('-')
-        const newCur = rates[cur1] ? cur2 : cur1
-        const oldCur = rates[cur1] ? cur1 : cur2
-        newRates.add(newCur)
-        rates[newCur] = pair.startsWith(oldCur)
-          ? rates[oldCur] * price
-          : rates[oldCur] / price
-      })
-      remove(marketSummaries, ({marketName}) => {
-        const [cur1, cur2] = marketName.split('-')
-        return rates[cur1] && rates[cur2]
-      })
-    }
-    return rates
   }
 
   function getTrade (orders, {currency, rates, after, before}) {
@@ -188,8 +164,6 @@ const bittrexHelpers = (() => {
 
   return {
     getBalancesAt,
-
-    getRates,
 
     getTrade,
     getBuySellOrders,

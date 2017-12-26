@@ -1,16 +1,16 @@
 'use strict'
 
-function formMinersAccountTableData (minersTableData, minerData, rates) {
+async function formMinersAccountTableData (minersTableData, minerData, rates) {
   const {getBalancesAt} = bittrexHelpers
-  const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
+  const today = moment().tz('EET').hours(0).minutes(0).seconds(0).milliseconds(0)
 
   const addToStart = 10000
   const reduceBTC = 3.45643030
   const reduceBy = reduceBTC * rates.BTC
 
   const startInUSDT = _.sumBy(minersTableData, 'totalUSDT') + addToStart
-  const todayInUSDT = getBalancesAt(minerData, today).total - reduceBy
-  const inUSDT = getBalancesAt(minerData).total - reduceBy
+  const todayInUSDT = (await getBalancesAt(minerData, today)).total - reduceBy
+  const inUSDT = (await getBalancesAt(minerData)).total - reduceBy
 
   return {startInUSDT, todayInUSDT, inUSDT}
 }

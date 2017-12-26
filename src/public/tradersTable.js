@@ -121,11 +121,11 @@ function buildTradersTable (rows) {
   `
 }
 
-function formTradersTableData (data, rates) {
+async function formTradersTableData (data, rates) {
   const {sumBy, floor} = _
   const {getBalancesAt, getTrade} = bittrexHelpers
 
-  const today = moment().tz('EET').hours(0).minutes(0).seconds(0)
+  const today = moment().tz('EET').hours(0).minutes(0).seconds(0).milliseconds(0)
   const periodStartDate = today.date() >= config.periodStartDate
     ? moment(today).date(config.periodStartDate)
     : moment(today).subtract(1, 'month').date(config.periodStartDate)
@@ -135,18 +135,18 @@ function formTradersTableData (data, rates) {
   // if config.tradersTable.currentTimePeriod == 0 than currentTime is actually current
   const currentTime = floor(Date.now() / currentTimePeriod) * currentTimePeriod || Date.now()
 
-  const table = data.getNames('traders').map(traderName => {
+  const table = await Promise.map(data.getNames('traders'), async traderName => {
     const traderData = data.getData('trader', traderName)
     const {orderHistory} = traderData
 
-    const todayInUSDT = getBalancesAt(traderData, today).total
-    const todayUSDT = getBalancesAt(traderData, today, 'USDT')
+    const todayInUSDT = (await getBalancesAt(traderData, today)).total
+    const todayUSDT = await getBalancesAt(traderData, today, 'USDT')
     const todayPositionsInUSDT = todayInUSDT - todayUSDT
     const todayTrade = getTrade(orderHistory, {rates, after: today, before: currentTime})
     const todayTradePct = todayTrade / todayInUSDT
 
-    const USDT = getBalancesAt(traderData, currentTime, 'USDT')
-    const inUSDT = getBalancesAt(traderData, currentTime).total
+    const USDT = await getBalancesAt(traderData, currentTime, 'USDT')
+    const inUSDT = (await getBalancesAt(traderData, currentTime)).total
     const positionsInUSDT = inUSDT - USDT
 
     let startInUSDT, startUSDT, startPositionsInUSDT, startTrade
@@ -154,8 +154,8 @@ function formTradersTableData (data, rates) {
       startInUSDT = config.tradersTable.fakeData[traderName].startInUSDT
       startTrade = inUSDT - startInUSDT
     } else {
-      startInUSDT = getBalancesAt(traderData, periodStartDate).total
-      startUSDT = getBalancesAt(traderData, periodStartDate, 'USDT')
+      startInUSDT = (await getBalancesAt(traderData, periodStartDate)).total
+      startUSDT = await getBalancesAt(traderData, periodStartDate, 'USDT')
       startPositionsInUSDT = startInUSDT - startUSDT
       startTrade = getTrade(orderHistory, {rates, after: periodStartDate})
     }

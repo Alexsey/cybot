@@ -15,7 +15,7 @@ window.onload = async () => {
 
   await new Promise(fulfill => setTimeout(fulfill, 30)) // hack to loader.buildingTable() to execute
 
-  const tradersTableRowsData = formTradersTableData(data, data.rates)
+  const tradersTableRowsData = await formTradersTableData(data, data.rates)
   document.getElementById('traders-table').innerHTML = buildTradersTable(tradersTableRowsData)
   loader.disable()
 
@@ -27,7 +27,7 @@ window.onload = async () => {
     : formMinersTableData(depositHistory, withdrawalHistory, data.rates)
   document.getElementById('miners-table').innerHTML = buildMinersTable(minersTableRowsData)
 
-  const mainAccountRowsData = formMinersAccountTableData(minersTableRowsData, minerData, data.rates)
+  const mainAccountRowsData = await formMinersAccountTableData(minersTableRowsData, minerData, data.rates)
   document.getElementById('main-account-table').innerHTML
     = buildMainAccountTable(mainAccountRowsData)
 
@@ -38,33 +38,22 @@ async function getData () {
   loader.dataLoading()
 
   const data = await Promise.props({
-    traders: new Promise((fulfill, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open('GET', '/data/traders?data=orders,deposits,withdrawals,balances')
-      xhr.onerror = () => reject(xhr)
-      xhr.onloadend = () => fulfill(JSON.parse(xhr.responseText))
-      xhr.send()
-    }),
-    miners: new Promise((fulfill, reject) => {
-      const xhr = new XMLHttpRequest()
-      // orders and balances are only for temp mainers-account-table
-      xhr.open('GET', '/data/miners?data=orders,deposits,withdrawals,balances')
-      xhr.onerror = () => reject(xhr)
-      xhr.onloadend = () => fulfill(JSON.parse(xhr.responseText))
-      xhr.send()
-    }),
-    common: new Promise((fulfill, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open('GET', '/data?data=markets,coinMarketCapRates')
-      xhr.onerror = () => reject(xhr)
-      xhr.onloadend = () => fulfill(JSON.parse(xhr.responseText))
-      xhr.send()
-    })
+    traders: request('data/traders', {data: ['orders', 'deposits', 'withdrawals', 'balances']}),
+    // orders and balances are only for temp mainers-account-table
+    miners: request('data/miners', {data: ['orders', 'deposits', 'withdrawals', 'balances']}),
+    rates: request('rates')
   })
-  data.rates = _.defaults(
-    bittrexHelpers.getRates(data.common.marketSummaries),
-    _.mapValues(data.common.coinMarketCapRates, v => +v)
-  )
+
+  const ratesHistory = {}
+  window.ratesHistory = ratesHistory
+  data.getRatesAt = async at => {
+    if (at) at = +at
+    if (Math.abs(at - Date.now()) < 60 * 1000) at = undefined
+
+    if (ratesHistory[at]) return ratesHistory[at]
+    ratesHistory[at] = request('rates', {at})
+    return ratesHistory[at] = await ratesHistory[at]
+  }
 
   data.getData = (role, name) => ({
     balances         : data[`${role}s`].balances[name],
@@ -80,4 +69,26 @@ async function getData () {
   await new Promise(fulfill => setTimeout(fulfill, 30))
 
   return data
+}
+
+function request (method, route, params) {
+  if (!_.isString(route)) [method, route, params] = ['GET', method, route]
+
+  route = route.replace(/^\b(?!\/)/, '/') // ensure leading /
+  if (params) {
+    params = _(params)
+      .mapValues(v => _.isArray(v) ? v.join(',') : v)
+      .toPairs()
+      .map(([key, value]) => (value != null && value != '') ? `${key}=${value}` : `${key}`)
+      .join('&')
+    route += (route.includes('?') ? '' : '?') + params
+  }
+
+  return new Promise((fulfill, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open(method, route)
+    xhr.onerror = () => reject(xhr)
+    xhr.onloadend = () => fulfill(JSON.parse(xhr.responseText))
+    xhr.send()
+  })
 }
