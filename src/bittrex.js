@@ -71,6 +71,7 @@ const router = new (require('koa-router')) || false
   app.use(auth(statCredentials))
   app.use(router.routes())
   app.use(require('koa-static')('src/public'))
+  app.use(require('koa-favicon')(`${process.cwd()}/res/favicon.ico`))
 
   app.listen(port, () => console.log(`Server started on ${port}`))
 
