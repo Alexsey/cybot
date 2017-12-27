@@ -139,15 +139,16 @@ async function formTradersTableData (data, rates) {
     const traderData = data.getData('trader', traderName)
     const {orderHistory} = traderData
 
-    const todayInUSDT = (await getBalancesAt(traderData, today)).total
-    const todayUSDT = await getBalancesAt(traderData, today, 'USDT')
-    const todayPositionsInUSDT = todayInUSDT - todayUSDT
-    const todayTrade = getTrade(orderHistory, {rates, after: today, before: currentTime})
-    const todayTradePct = todayTrade / todayInUSDT
-
     const USDT = await getBalancesAt(traderData, currentTime, 'USDT')
     const inUSDT = (await getBalancesAt(traderData, currentTime)).total
     const positionsInUSDT = inUSDT - USDT
+
+    const todayInUSDT = (await getBalancesAt(traderData, today)).total
+    const todayUSDT = await getBalancesAt(traderData, today, 'USDT')
+    const todayPositionsInUSDT = todayInUSDT - todayUSDT
+    // const todayTrade = getTrade(orderHistory, {rates, after: today, before: currentTime})
+    const todayTrade = inUSDT - todayInUSDT
+    const todayTradePct = todayTrade / todayInUSDT
 
     let startInUSDT, startUSDT, startPositionsInUSDT, startTrade
     if (config.tradersTable.useFakeData && config.tradersTable.fakeData[traderName]) {
