@@ -5,7 +5,7 @@ const config = {
   bittrexCommission: 0.0025,
   tradersTable: {
     // in hours. Could be float ex. 1/3. Set 0 to use actual time
-    currentTimePeriod: 1 / 2,
+    currentTimePeriod: 0,
     useFakeData: true,
     fakeData: {
       Stanislav: {
@@ -34,7 +34,7 @@ const config = {
     fakeData: {
       ETH:   {deposit: 48.85770736, withdrawal: 0},
       XMR:   {deposit: 17.892112288329, withdrawal: 0},
-      MUSIC: {deposit: 147991.03859825, withdrawal: 0},
+      MUSIC: {deposit: 150052.96772194, withdrawal: 0},
       BCN:   {deposit: 50765.94000000, withdrawal: 0},
     }
   },
