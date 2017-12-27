@@ -14,7 +14,7 @@ const config = {
       Yaroslav: {
         startInUSDT: 2020
       },
-      Test: {
+      Dmitriy: {
         startInUSDT: 318
       },
       Alexey: {
