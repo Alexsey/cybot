@@ -6,11 +6,12 @@ async function formMinersAccountTableData (minersTableData, minerData, rates) {
 
   const addToStart = 10000
   const reduceBTC = 3.45643030
-  const reduceBy = reduceBTC * rates.BTC
+  const reduceUSDT = reduceBTC * rates.BTC
+  const reduceTodayUSDT = reduceBTC * (await data.getRatesAt(today)).BTC
 
   const startInUSDT = _.sumBy(minersTableData, 'totalUSDT') + addToStart
-  const todayInUSDT = (await getBalancesAt(minerData, today)).total - reduceBy
-  const inUSDT = (await getBalancesAt(minerData)).total - reduceBy
+  const todayInUSDT = (await getBalancesAt(minerData, today)).total - reduceTodayUSDT
+  const inUSDT = (await getBalancesAt(minerData)).total - reduceUSDT
 
   return {startInUSDT, todayInUSDT, inUSDT}
 }
