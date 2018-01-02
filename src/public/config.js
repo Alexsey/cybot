@@ -35,7 +35,7 @@ const config = {
       ETH:   {deposit: 40.18643115, withdrawal: 0},
       XMR:   {deposit: 17.892112288329, withdrawal: 0},
       MUSIC: {deposit: 154820.39761663, withdrawal: 0},
-      SC:    {deposit: 300000, withdrawal: 0}
+      SC:    {deposit: 300000, withdrawal: 0},
       BCN:   {deposit: 50765.94000000, withdrawal: 0},
     }
   },
