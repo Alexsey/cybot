@@ -5,13 +5,10 @@ async function formMinersAccountTableData (minersTableData, minerData, rates) {
   const today = moment().tz('EET').hours(0).minutes(0).seconds(0).milliseconds(0)
 
   const addToStart = 10000
-  const reduceBTC = 3.45643030
-  const reduceUSDT = reduceBTC * rates.BTC
-  const reduceTodayUSDT = reduceBTC * (await data.getRatesAt(today)).BTC
 
   const startInUSDT = _.sumBy(minersTableData, 'totalUSDT') + addToStart
-  const todayInUSDT = (await getBalancesAt(minerData, today)).total - reduceTodayUSDT
-  const inUSDT = (await getBalancesAt(minerData)).total - reduceUSDT
+  const todayInUSDT = (await getBalancesAt(minerData, today)).total
+  const inUSDT = (await getBalancesAt(minerData)).total
 
   return {startInUSDT, todayInUSDT, inUSDT}
 }
