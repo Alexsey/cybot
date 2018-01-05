@@ -1,6 +1,7 @@
 'use strict'
 
 let loadingCounter = 0
+
 const loader = {
   disable: () => {
     loadingCounter--
