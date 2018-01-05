@@ -3,10 +3,15 @@
 async function formMinersAccountTableData (minersTableData, minerData, rates) {
   const {getBalancesAt} = bittrexHelpers
   const today = moment().tz('EET').hours(0).minutes(0).seconds(0).milliseconds(0)
+  const ratesToday = await data.getRatesAt(today)
 
   const addToStart = 112000
-  const addToToday = config.minersTable.fakeData.BCN.deposit * (await data.getRatesAt(today)).BCN
-  const addToCurrent = config.minersTable.fakeData.BCN.deposit * rates.BCN
+  const addToToday =
+      config.minersTable.fakeData.BCN.deposit * ratesToday.BCN
+    + config.minersTable.fakeData.RPX.deposit * ratesToday.RPX
+  const addToCurrent =
+        config.minersTable.fakeData.BCN.deposit * rates.BCN
+      + config.minersTable.fakeData.RPX.deposit * rates.RPX
 
   const startInUSDT = _.sumBy(minersTableData, 'totalUSDT') + addToStart
   const todayInUSDT = (await getBalancesAt(minerData, today)).total + addToToday
