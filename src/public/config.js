@@ -37,6 +37,7 @@ const config = {
       MUSIC: {deposit: 158992.97134135, withdrawal: 0},
       SC:    {deposit: 500000, withdrawal: 0},
       BCN:   {deposit: 1033537.73850005, withdrawal: 0},
+      RPX:   {deposit: 14598.1054818, withdrawal: 0},
     }
   },
   minersAccountTable: {
