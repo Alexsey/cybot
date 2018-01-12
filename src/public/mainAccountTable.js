@@ -5,7 +5,7 @@ async function formMinersAccountTableData (minersTableData, minerData, rates) {
   const today = moment().tz('EET').hours(0).minutes(0).seconds(0).milliseconds(0)
   const ratesToday = await data.getRatesAt(today)
 
-  const addToStart = 112000
+  const addToStart = 108000
   const addToToday =
       config.minersTable.fakeData.BCN.deposit * ratesToday.BCN
     + config.minersTable.fakeData.RPX.deposit * ratesToday.RPX
