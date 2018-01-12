@@ -10,10 +10,12 @@ async function formMinersAccountTableData (minersTableData, minerData, rates) {
       config.minersTable.fakeData.BCN.deposit * ratesToday.BCN
     + config.minersTable.fakeData.RPX.deposit * ratesToday.RPX
     + config.minersTable.fakeData.ZRX.deposit * ratesToday.ZRX
+    + config.minersTable.fakeData.TRX.deposit * ratesToday.TRX
   const addToCurrent =
         config.minersTable.fakeData.BCN.deposit * rates.BCN
       + config.minersTable.fakeData.RPX.deposit * rates.RPX
       + config.minersTable.fakeData.ZRX.deposit * rates.ZRX
+      + config.minersTable.fakeData.TRX.deposit * rates.TRX
 
   const startInUSDT = _.sumBy(minersTableData, 'totalUSDT') + addToStart
   const todayInUSDT = (await getBalancesAt(minerData, today)).total + addToToday
