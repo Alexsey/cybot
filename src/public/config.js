@@ -40,8 +40,6 @@ const config = {
       RPX:   {deposit: 14598.1054818, withdrawal: 0},
       ZRX:   {deposit: 4868.02722004, withdrawal: 0},
       TRX:   {deposit: 103806.09, withdrawal: 0},
-      MTL:   {deposit: 644.78291877, withdrawal: 0},
-      DGD:   {deposit: 27.67033334, withdrawal: 0},
     }
   },
   minersAccountTable: {
