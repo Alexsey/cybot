@@ -6,11 +6,11 @@
  io = deposit - withdrawal - txCost
 */
 
-const {
-  mapValues, sum, sumBy, map, transform, find, reject
-} = _
-
 const bittrexHelpers = (() => {
+  const {
+    mapValues, sum, sumBy, map, transform, find, reject
+  } = _
+
   async function getBalancesAt (traderData, at, currency) {
     if (currency) return getBalanceOfTrader(traderData, at, currency)
 
@@ -28,14 +28,11 @@ const bittrexHelpers = (() => {
   }
 
   function getAllBalancesAt (data, at, currency) {
-    return mapValues(data.balances, (_, traderName) => {
+    return Promise.props(mapValues(data.balances, async (_, traderName) => {
       const traderData = data[traderName]
-      return currency
-        ? getBalanceOfTrader(traderData, at, currency)
-        : transform(traderData.balances, (acc, {currency}) => {
-          acc[currency] = getBalanceOfTrader(traderData, at, currency)
-        }, {})
-    })
+      const balance = await getBalancesAt(traderData, at, currency)
+      return currency ? balance : balance.total
+    }))
   }
 
   function getBalanceOfTrader (data, at = Date.now(), currency) {

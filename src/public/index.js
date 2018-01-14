@@ -45,7 +45,6 @@ async function getData () {
   })
 
   const ratesHistory = {}
-  window.ratesHistory = ratesHistory
   data.getRatesAt = async at => {
     if (at) at = +at
     if (Math.abs(at - Date.now()) < 60 * 1000) at = undefined
@@ -54,6 +53,7 @@ async function getData () {
     ratesHistory[at] = request('rates', {at})
     return ratesHistory[at] = await ratesHistory[at]
   }
+  data.getRates = () => data.getRatesAt(Date.now())
 
   data.getData = (role, name) => ({
     balances         : data[`${role}s`].balances[name],
