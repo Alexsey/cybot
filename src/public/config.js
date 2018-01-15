@@ -33,7 +33,7 @@ const config = {
     useFakeData: true,
     fakeData: {
       ETH:   {deposit: 1.59695490, withdrawal: 0},
-      MUSIC: {deposit: 170113.98966136, withdrawal: 0},
+      MUSIC: {deposit: 170113.98966137, withdrawal: 0},
       SC:    {deposit: 500000, withdrawal: 0},
       RCN:   {deposit: 13254.84479378, withdrawal: 0},
       BCN:   {deposit: 1033537.73850005, withdrawal: 0},
