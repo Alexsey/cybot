@@ -20,7 +20,7 @@ const config = {
       'Main Account': {
         startInUSDT: 108000
       },
-      'Alexey 1': {
+      'Mining Account': {
         startInUSDT: 0
       },
     }
