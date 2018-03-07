@@ -33,13 +33,9 @@ const config = {
     useFakeData: true,
     fakeData: {
       ETC:   {deposit: 21.21788894, withdrawal: 0},
-      MUSIC: {deposit: 1849.91031097, withdrawal: 0},
-      GNO:   {deposit: 97.29144518, withdrawal: 0},
-      BTC:   {deposit: 2.20186287, withdrawal: 0},
-      BCN:   {deposit: 1033537.73850005, withdrawal: 0},
-      RPX:   {deposit: 14598.1054818, withdrawal: 0},
-      ZRX:   {deposit: 4868.02722004, withdrawal: 0},
-      TRX:   {deposit: 103806.09, withdrawal: 0},
+      MUSIC: {deposit: 258365.88986115, withdrawal: 0},
+      ETH:   {deposit: 56.70712666, withdrawal: 0},
+      XMR:   {deposit: 17.892112288329, withdrawal: 0},
     }
   },
   minersAccountTable: {
