@@ -3,7 +3,7 @@
 require('util').inspect.defaultOptions.colors = true
 require('util').inspect.styles.number = 'cyan'
 const _ = require('lodash') || false
-const {transform, difference} = _
+const {transform, difference, keys} = _
 const bb = require('bluebird')
 const moment = require('moment')
 const app = new (require('koa')) || false
@@ -53,6 +53,10 @@ const router = new (require('koa-router')) || false
   router.get('/data', ctx => {
     ctx.status = 307
     ctx.redirect(`/data/all${ctx.querystring ? `?${ctx.querystring}` : ''}`)
+  })
+
+  router.get('/roles', ctx => {
+    ctx.body = keys(bittrex.roles)
   })
 
   app.use(async (ctx, next) => {

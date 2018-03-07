@@ -1,7 +1,6 @@
 'use strict'
 
 exports.credentials = [{
-
   name: 'Main Account',
   roles: ['trader'],
   key: 'b68208d678e141ba8cb3f05d4a9c5c64',

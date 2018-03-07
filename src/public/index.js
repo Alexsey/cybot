@@ -1,8 +1,10 @@
 'use strict'
 
-let data
+// todo refactor roles - all usages are hack and it should not be global
+let roles, data
 
 window.onload = async () => {
+  roles = new Set(await request('roles'))
   data = await getData()
 
   document.getElementById('miners-table').innerHTML = ''
@@ -19,17 +21,18 @@ window.onload = async () => {
   document.getElementById('traders-table').innerHTML = buildTradersTable(tradersTableRowsData)
   loader.disable()
 
-  const minerData = data.getData('miner', 'Vladimir')
-  const {depositHistory, withdrawalHistory} = minerData
+  const minerData = roles.has('miner') && data.getData('miner', 'Vladimir')
+  const {depositHistory, withdrawalHistory} = minerData || {}
 
   const minersTableRowsData = config.minersTable.useFakeData
     ? formMinersTableDataFake(data.rates)
     : formMinersTableData(depositHistory, withdrawalHistory, data.rates)
   document.getElementById('miners-table').innerHTML = buildMinersTable(minersTableRowsData)
 
-  const mainAccountRowsData = await formMinersAccountTableData(minersTableRowsData, minerData, data.rates)
-  document.getElementById('main-account-table').innerHTML
-    = buildMainAccountTable(mainAccountRowsData)
+  if (minerData) {
+    const mainAccountRowsData = await formMinersAccountTableData(minersTableRowsData, minerData, data.rates)
+    document.getElementById('main-account-table').innerHTML = buildMainAccountTable(mainAccountRowsData)
+  }
 
   loader.disable()
 }
@@ -37,10 +40,13 @@ window.onload = async () => {
 async function getData () {
   loader.dataLoading()
 
+  // todo values should be consistent
   const data = await Promise.props({
-    traders: request('data/traders', {data: ['orders', 'deposits', 'withdrawals', 'balances']}),
+    traders: roles.has('traders')
+      && request('data/traders', {data: ['orders', 'deposits', 'withdrawals', 'balances']}),
     // orders and balances are only for temp mainers-account-table
-    miners: request('data/miners', {data: ['orders', 'deposits', 'withdrawals', 'balances']}),
+    miners: roles.has('miners')
+      && request('data/miners', {data: ['orders', 'deposits', 'withdrawals', 'balances']}),
     rates: request('rates')
   })
 
