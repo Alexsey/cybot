@@ -17,12 +17,12 @@ const config = {
       Dmitriy: {
         startInUSDT: 318
       },
-      Main Account: {
+      'Main Account': {
         startInUSDT: 108000
       },
       'Alexey 1': {
         startInUSDT: 0
-      },       
+      },
     }
   },
   ordersTable: {
