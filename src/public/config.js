@@ -32,7 +32,7 @@ const config = {
     currencies: ['ETH', 'XMR', 'MUSIC'],
     useFakeData: true,
     fakeData: {
-      ETC:   {deposit: 21.21788893, withdrawal: 0},
+      ETC:   {deposit: 21.21788894, withdrawal: 0},
       MUSIC: {deposit: 1849.91031097, withdrawal: 0},
       GNO:   {deposit: 97.29144518, withdrawal: 0},
       BTC:   {deposit: 2.20186287, withdrawal: 0},
