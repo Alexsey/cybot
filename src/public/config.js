@@ -32,10 +32,12 @@ const config = {
     currencies: ['ETH', 'XMR', 'MUSIC'],
     useFakeData: true,
     fakeData: {
-      ETC:   {deposit: 235.61109475, withdrawal: 0},
-      MUSIC: {deposit: 258365.88986115, withdrawal: 0},
+      ETC:   {deposit: 357,22839952, withdrawal: 0},
+      MUSIC: {deposit: 288153,35302582, withdrawal: 0},
       ETH:   {deposit: 56.70712666, withdrawal: 0},
       XMR:   {deposit: 17.892112288329, withdrawal: 0},
+      RVN:   {deposit: 1676.60029624, withdrawal: 0},
+
     }
   },
   minersAccountTable: {
