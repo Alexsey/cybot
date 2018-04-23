@@ -17,8 +17,9 @@ window.onload = async () => {
 
   await new Promise(fulfill => setTimeout(fulfill, 30)) // hack to loader.buildingTable() to execute
 
-  const tradersTableRowsData = await formTradersTableData(data, data.rates)
-  document.getElementById('traders-table').innerHTML = buildTradersTable(tradersTableRowsData)
+  // Uncomment below to stop hiding Traders Table
+  // const tradersTableRowsData = await formTradersTableData(data, data.rates)
+  // document.getElementById('traders-table').innerHTML = buildTradersTable(tradersTableRowsData)
   loader.disable()
 
   const minerData = roles.has('miner') && data.getData('miner', 'Vladimir')
