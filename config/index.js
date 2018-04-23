@@ -3,7 +3,7 @@
 const _ = require('lodash')
 
 exports.statCredentials = {
-  name: 'admin',
+  name: 'admin1',
   pass: 'admin2017'
 }
 
