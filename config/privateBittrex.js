@@ -1,13 +1,13 @@
 'use strict'
 
 exports.credentials = [{
-  name: 'Main Account',
-  roles: ['trader'],
-  key: 'b68208d678e141ba8cb3f05d4a9c5c64',
-  secrets: {
-    read: 'bba99550791c4ea89cf2ff567458feaf'
-  }
-}, {
+//   name: 'Main Account',
+//   roles: ['trader'],
+//   key: 'b68208d678e141ba8cb3f05d4a9c5c64',
+//   secrets: {
+//     read: 'bba99550791c4ea89cf2ff567458feaf'
+//   }
+// }, {
   name: 'Mining Account',
   roles: ['trader'],
   key: '5301d2f6e27643c8a504cc2ca0b2466a',
