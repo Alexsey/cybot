@@ -12,24 +12,24 @@
   },
   "dependencies": {
     "bluebird": "^3.5.1",
-    "koa": "^2.4.1",
+    "koa": "^2.5.0",
     "koa-basic-auth": "^2.0.0",
-    "koa-favicon": "^2.0.0",
-    "koa-router": "^7.3.0",
+    "koa-favicon": "^2.0.1",
+    "koa-router": "^7.4.0",
     "koa-static": "^4.0.2",
-    "lodash": "^4.17.4",
-    "moment": "^2.19.3",
-    "moment-timezone": "^0.5.14",
-    "mysql2": "^1.5.1",
-    "node-bittrex-api": "0.7.5",
+    "lodash": "^4.17.5",
+    "moment": "^2.22.1",
+    "moment-timezone": "^0.5.16",
+    "mysql2": "^1.5.3",
+    "node-bittrex-api": "^0.8.3",
     "pluralize": "^7.0.0",
-    "request": "^2.83.0",
+    "request": "^2.85.0",
     "request-promise": "^4.2.2",
-    "sequelize": "^4.28.5",
-    "shelljs": "^0.7.8",
-    "yargs": "^10.0.3"
+    "sequelize": "^4.37.6",
+    "shelljs": "^0.8.1",
+    "yargs": "^11.0.0"
   },
   "devDependencies": {
-    "eslint": "^4.14.0"
+    "eslint": "^4.19.1"
   }
 }
