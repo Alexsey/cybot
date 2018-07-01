@@ -36,7 +36,7 @@ const config = {
       MUSIC: {deposit: 288153.35302582, withdrawal: 0},
       ETH:   {deposit: 56.70712666, withdrawal: 0},
       XMR:   {deposit: 17.892112288329, withdrawal: 0},
-      RVN:   {deposit: 164826.0960666667, withdrawal: 0},
+      RVN:   {deposit: 227975.2445846733, withdrawal: 0},
 
     }
   },
