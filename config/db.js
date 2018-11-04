@@ -1,8 +1,8 @@
 'use strict'
 
 module.exports = {
-  host: '160.153.128.6',
-  base: 'cryptostats',
-  user: 'cryptostats',
-  pass: 'admin2017',
+  host: process.env.DB_HOST,
+  base: process.env.DB_BASE,
+  user: process.env.DB_USER,
+  pass: process.env.DB_PASS,
 }

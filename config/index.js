@@ -3,8 +3,8 @@
 const _ = require('lodash')
 
 exports.statCredentials = {
-  name: 'admin1',
-  pass: 'admin2017'
+  name: process.env.USER,
+  pass: process.env.PASS,
 }
 
 exports.poloniex = _.merge({

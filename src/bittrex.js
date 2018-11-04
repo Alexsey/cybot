@@ -2,6 +2,7 @@
 
 require('util').inspect.defaultOptions.colors = true
 require('util').inspect.styles.number = 'cyan'
+require('dotenv').config()
 const _ = require('lodash') || false
 const {transform, difference, keys} = _
 const bb = require('bluebird')
